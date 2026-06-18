@@ -1,0 +1,23 @@
+{
+  "name": "m3-genka",
+  "version": "1.0.0",
+  "description": "商品企画書 Web アプリ — 画像配置・原価率自動計算・PDF/Excel書き出し・保存・ログイン機能",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tests/calc.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  }
+}
