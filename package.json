@@ -1,0 +1,29 @@
+{
+  "name": "m3-genka",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "商品企画書・原価表 Web アプリ（ログイン / 保存 / Excel・PDF 出力 / 画像追加 / 自動計算）",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "exceljs": "^4.4.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}
