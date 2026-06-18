@@ -1,0 +1,13 @@
+{
+  "name": "m3-genka",
+  "version": "2.0.0",
+  "description": "商品企画書 Web アプリ（静的フロント + Supabase）— 画像配置・原価率自動計算・PDF/Excel書き出し・保存・ログイン",
+  "type": "commonjs",
+  "scripts": {
+    "serve": "node serve.js",
+    "test": "node tests/calc.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

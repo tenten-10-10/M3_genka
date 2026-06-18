@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>商品企画書 — 原価計算ツール</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231f4d3b'/%3E%3Ctext x='32' y='44' font-size='38' text-anchor='middle' fill='%23fff' font-family='sans-serif' font-weight='bold'%3E原%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- ===================== ログイン画面 ===================== -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="logo-row"><img id="loginLogo" alt="SHOWA" /></div>
+      <h1>商品企画書システム</h1>
+      <div class="sub">原価計算・PDF/Excel書き出し対応</div>
+
+      <div id="loginForm">
+        <label>ユーザー名</label>
+        <input id="loginUser" type="text" autocomplete="username" />
+        <label>パスワード</label>
+        <input id="loginPass" type="password" autocomplete="current-password" />
+        <button class="full" id="loginBtn">ログイン</button>
+        <div class="toggle">アカウントが無い方は <a id="toRegister">新規登録</a></div>
+        <div class="auth-hint">初期アカウント — ユーザー名: <b>admin</b> / パスワード: <b>admin1234</b></div>
+      </div>
+
+      <div id="registerForm" style="display:none">
+        <label>ユーザー名</label>
+        <input id="regUser" type="text" autocomplete="username" />
+        <label>パスワード（6文字以上）</label>
+        <input id="regPass" type="password" autocomplete="new-password" />
+        <button class="full" id="registerBtn">登録してはじめる</button>
+        <div class="toggle">既にアカウントをお持ちの方は <a id="toLogin">ログイン</a></div>
+      </div>
+
+      <div id="authError" class="auth-error"></div>
+    </div>
+  </div>
+
+  <!-- ===================== アプリ本体 ===================== -->
+  <div id="app" class="app">
+    <div class="toolbar">
+      <span class="brand">商品企画書</span>
+      <input id="projName" class="proj-name" placeholder="企画書のタイトル" />
+      <button class="btn primary" id="saveBtn">保存</button>
+      <span id="saveState" class="save-state"></span>
+      <span class="spacer"></span>
+      <button class="btn" id="pdfBtn">PDF書き出し</button>
+      <button class="btn" id="excelBtn">Excel書き出し</button>
+      <button class="btn ghost" id="printBtn">印刷</button>
+      <button class="btn ghost" id="pwBtn">パスワード変更</button>
+      <span id="userLabel" class="save-state"></span>
+      <button class="btn ghost" id="logoutBtn">ログアウト</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-view="sheet">企画書</button>
+      <button class="tab" data-view="cost">原価表</button>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <button class="btn" id="newBtn" style="width:100%;background:#2f6f55;border-color:#2f6f55;margin-bottom:10px">＋ 新規作成</button>
+        <h3>保存済みの企画書</h3>
+        <ul id="projList" class="proj-list"></ul>
+      </aside>
+
+      <div class="canvas-wrap">
+        <div style="width:920px">
+          <!-- 企画書ビュー -->
+          <div id="viewSheet" class="view active">
+            <div id="sheet" class="sheet"><!-- sheet.js が描画 --></div>
+          </div>
+          <!-- 原価表ビュー -->
+          <div id="viewCost" class="view">
+            <div id="costRoot" class="sheet cost-wrap"><!-- sheet.js が描画 --></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- パスワード変更モーダル -->
+  <div class="modal-back" id="pwModal">
+    <div class="modal">
+      <h2>パスワード変更</h2>
+      <label>現在のパスワード</label>
+      <input id="pwCurrent" type="password" />
+      <label>新しいパスワード（6文字以上）</label>
+      <input id="pwNew" type="password" />
+      <div class="actions">
+        <button id="pwCancel">キャンセル</button>
+        <button class="primary" id="pwSave">変更する</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- 隠しファイル入力（画像追加用） -->
+  <input type="file" id="imgInput" accept="image/*" multiple style="display:none" />
+
+  <!-- ライブラリ -->
+  <script src="/vendor/html2canvas.min.js"></script>
+  <script src="/vendor/jspdf.umd.min.js"></script>
+  <script src="/vendor/xlsx.full.min.js"></script>
+
+  <!-- アプリ -->
+  <script src="/js/config.js"></script>
+  <script src="/js/assets.js"></script>
+  <script src="/js/calc.js"></script>
+  <script src="/js/defaults.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/sheet.js"></script>
+  <script src="/js/export.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
