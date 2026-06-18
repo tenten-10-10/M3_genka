@@ -1,10 +1,9 @@
 node_modules/
 package-lock.json
-data/db.json
-data/db.json.tmp
 *.log
 .DS_Store
 .env
+.vercel
 
 # 一時テスト・スクリーンショット
 e2e_tmp.js

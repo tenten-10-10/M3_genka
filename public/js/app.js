@@ -128,15 +128,25 @@
     return plan;
   }
 
+  // 別の操作へ移る前に、未保存の変更を安全に処理する。
+  // 既存プロジェクト: 自動保存し、失敗したら中断（編集を失わない）。
+  // 未保存の新規: 破棄の確認を取る。
+  // 続行してよいときだけ true を返す。
+  async function guardUnsaved(actionLabel) {
+    if (!dirty) return true;
+    if (currentProjectId) {
+      const ok = await save(true);
+      if (!ok) {
+        toast('保存に失敗したため' + actionLabel + 'を中止しました', true);
+      }
+      return ok;
+    }
+    return confirm('保存していない新規企画書があります。破棄して' + actionLabel + 'しますか？');
+  }
+
   async function switchProject(id) {
     if (id === currentProjectId) return;
-    if (dirty) {
-      if (currentProjectId) {
-        await save(true);
-      } else if (!confirm('保存していない新規企画書があります。破棄して切り替えますか？')) {
-        return;
-      }
-    }
+    if (!(await guardUnsaved('切り替え'))) return;
     try {
       await openProject(id);
     } catch (e) {
@@ -147,7 +157,7 @@
   async function save(silent) {
     clearTimeout(autosaveTimer);
     const plan = sheet.getPlan();
-    if (!plan) return;
+    if (!plan) return false;
     const name = $('projName').value.trim() || plan.productName || '無題の企画書';
     try {
       if (currentProjectId) {
@@ -159,8 +169,10 @@
       markClean();
       await loadProjects(currentProjectId);
       if (!silent) toast('保存しました');
+      return true;
     } catch (e) {
       toast('保存に失敗しました: ' + e.message, true);
+      return false;
     }
   }
 
@@ -241,7 +253,7 @@
   }
 
   async function doLogout() {
-    if (dirty && currentProjectId) await save(true);
+    if (!(await guardUnsaved('ログアウト'))) return;
     await api.logout();
     currentUser = null;
     currentProjectId = null;
@@ -275,8 +287,7 @@
     // ツールバー
     $('saveBtn').addEventListener('click', () => save(false));
     $('newBtn').addEventListener('click', async () => {
-      if (dirty && currentProjectId) await save(true);
-      else if (dirty && !currentProjectId && !confirm('保存していない新規企画書を破棄しますか？')) return;
+      if (!(await guardUnsaved('新規作成'))) return;
       newProject();
     });
     $('logoutBtn').addEventListener('click', doLogout);

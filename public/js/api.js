@@ -1,14 +1,25 @@
-/* サーバー API ラッパー */
+/* バックエンド API ラッパー（Supabase Edge Function / トークン認証） */
 (function (global) {
   'use strict';
 
-  async function req(method, url, body) {
-    const opt = { method: method, headers: {}, credentials: 'same-origin' };
+  const TOKEN_KEY = 'genka_token';
+  function cfg() { return global.GENKA.config; }
+  function getToken() { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+  function setToken(t) {
+    try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) { /* ignore */ }
+  }
+
+  async function req(method, path, body) {
+    const c = cfg();
+    const headers = { apikey: c.anonKey };
+    const tok = getToken();
+    if (tok) headers['x-genka-token'] = tok;
+    const opt = { method, headers };
     if (body !== undefined) {
-      opt.headers['Content-Type'] = 'application/json';
+      headers['Content-Type'] = 'application/json';
       opt.body = JSON.stringify(body);
     }
-    const res = await fetch(url, opt);
+    const res = await fetch(c.apiBase + path, opt);
     let data = null;
     try { data = await res.json(); } catch (e) { /* no body */ }
     if (!res.ok) {
@@ -21,16 +32,26 @@
 
   global.GENKA = global.GENKA || {};
   global.GENKA.api = {
-    me: () => req('GET', '/api/me'),
-    login: (username, password) => req('POST', '/api/login', { username, password }),
-    register: (username, password) => req('POST', '/api/register', { username, password }),
-    logout: () => req('POST', '/api/logout'),
+    getToken,
+    setToken,
+    me: () => req('GET', '/me'),
+    login: async (username, password) => {
+      const r = await req('POST', '/login', { username, password });
+      setToken(r.token);
+      return r;
+    },
+    register: async (username, password) => {
+      const r = await req('POST', '/register', { username, password });
+      setToken(r.token);
+      return r;
+    },
+    logout: async () => { setToken(''); return { ok: true }; },
     changePassword: (currentPassword, newPassword) =>
-      req('POST', '/api/change-password', { currentPassword, newPassword }),
-    listProjects: () => req('GET', '/api/projects'),
-    getProject: (id) => req('GET', '/api/projects/' + id),
-    createProject: (name, data) => req('POST', '/api/projects', { name, data }),
-    updateProject: (id, name, data) => req('PUT', '/api/projects/' + id, { name, data }),
-    deleteProject: (id) => req('DELETE', '/api/projects/' + id),
+      req('POST', '/change-password', { currentPassword, newPassword }),
+    listProjects: () => req('GET', '/projects'),
+    getProject: (id) => req('GET', '/projects/' + id),
+    createProject: (name, data) => req('POST', '/projects', { name, data }),
+    updateProject: (id, name, data) => req('PUT', '/projects/' + id, { name, data }),
+    deleteProject: (id) => req('DELETE', '/projects/' + id),
   };
 })(window);
