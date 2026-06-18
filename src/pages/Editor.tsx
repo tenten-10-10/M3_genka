@@ -17,12 +17,36 @@ export default function Editor() {
   const [tab, setTab] = useState<Tab>("planning");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [dirty, setDirty] = useState(false);
   const [savedAt, setSavedAt] = useState<string>("");
   const [toast, setToast] = useState("");
   const [exporting, setExporting] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 編集リビジョンで「未保存」を厳密判定する。
+  // 古い保存リクエストの完了で、新しい編集の dirty 状態を消さないようにするため。
+  const [editRev, setEditRev] = useState(0);
+  const [savedRev, setSavedRev] = useState(0);
+  const editRevRef = useRef(0);
+  const savedRevRef = useRef(0);
+  const dirty = editRev !== savedRev;
+
+  // 保存時に常に最新の値を参照するための ref ミラー（クロージャの陳腐化を防ぐ）
+  const productRef = useRef<Product | null>(null);
+  const nameRef = useRef("");
+  useEffect(() => {
+    productRef.current = product;
+  }, [product]);
+  useEffect(() => {
+    nameRef.current = name;
+  }, [name]);
+  useEffect(() => {
+    savedRevRef.current = savedRev;
+  }, [savedRev]);
+
+  function bumpEdit() {
+    editRevRef.current += 1;
+    setEditRev(editRevRef.current);
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -30,41 +54,58 @@ export default function Editor() {
       .then((rec) => {
         setProduct(rec.data);
         setName(rec.name);
+        productRef.current = rec.data;
+        nameRef.current = rec.name;
         setSavedAt(rec.updated_at);
       })
       .catch((e) => setToast(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, [id]);
 
+  // 保存。多重実行を防ぎ（古い snapshot による上書きを回避）、
+  // 保存中に届いた編集は同じ実行内で続けて保存する。
+  const savingRef = useRef(false);
+  const pendingRef = useRef(false);
   const doSave = useCallback(
-    async (silent = false) => {
-      if (!id || !product) return;
+    async (silent = false): Promise<void> => {
+      if (!id || !productRef.current) return;
+      if (savingRef.current) {
+        // 進行中の保存に「もう一度保存して」と予約（並行リクエストによる順序逆転を防止）
+        pendingRef.current = true;
+        return;
+      }
+      savingRef.current = true;
       setSaving(true);
       try {
-        const rec = await updateProduct(id, name || product.name, product);
-        setSavedAt(rec.updated_at);
-        setDirty(false);
+        do {
+          pendingRef.current = false;
+          const revBeingSaved = editRevRef.current;
+          const snapshot = productRef.current;
+          if (!snapshot) break;
+          const rec = await updateProduct(id, nameRef.current || snapshot.name, snapshot);
+          setSavedAt(rec.updated_at);
+          // 保存できたのは revBeingSaved 時点の内容。これより新しい編集があれば dirty のまま。
+          setSavedRev((prev) => Math.max(prev, revBeingSaved));
+        } while (pendingRef.current);
         if (!silent) showToast("保存しました");
       } catch (e) {
         showToast("保存に失敗: " + (e instanceof Error ? e.message : String(e)));
       } finally {
+        savingRef.current = false;
         setSaving(false);
       }
     },
-    [id, product, name]
+    [id]
   );
 
-  // 自動保存（変更の2.5秒後）
+  // 自動保存（変更の2.5秒後）。編集のたびに再スケジュールする。
   useEffect(() => {
     if (!dirty) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => doSave(true), 2500);
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-    };
-  }, [dirty, doSave]);
+    const t = setTimeout(() => doSave(true), 2500);
+    return () => clearTimeout(t);
+  }, [dirty, editRev, doSave]);
 
-  // 離脱前の警告
+  // ページ離脱前の警告（タブを閉じる／リロード）
   useEffect(() => {
     const h = (e: BeforeUnloadEvent) => {
       if (dirty) {
@@ -76,14 +117,29 @@ export default function Editor() {
     return () => window.removeEventListener("beforeunload", h);
   }, [dirty]);
 
+  // アプリ内遷移（「← 一覧」やヘッダーリンク）でアンマウントされる際、
+  // デバウンス中の未保存分を取りこぼさないよう保存をフラッシュする。
+  const doSaveRef = useRef(doSave);
+  useEffect(() => {
+    doSaveRef.current = doSave;
+  }, [doSave]);
+  useEffect(() => {
+    return () => {
+      if (editRevRef.current !== savedRevRef.current) {
+        void doSaveRef.current(true);
+      }
+    };
+  }, []);
+
   const mutate = useCallback((fn: (p: Product) => void) => {
     setProduct((prev) => {
       if (!prev) return prev;
       const next = structuredClone(prev);
       fn(next);
+      productRef.current = next;
       return next;
     });
-    setDirty(true);
+    bumpEdit();
   }, []);
 
   function showToast(msg: string) {
@@ -130,7 +186,7 @@ export default function Editor() {
         <input
           className="name-input"
           value={name}
-          onChange={(e) => { setName(e.target.value); setDirty(true); }}
+          onChange={(e) => { setName(e.target.value); nameRef.current = e.target.value; bumpEdit(); }}
           placeholder="商品名"
         />
         <span className="saved">
