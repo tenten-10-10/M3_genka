@@ -116,9 +116,9 @@ export default function PlanningEditor({ product, mutate }: { product: Product; 
       <button className="btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={() => mutate((pp) => pp.planning.barcodes.push({ id: uid(), model: "", color: "", jan: "" }))}>＋ 行を追加</button>
 
       <div className="section-title">サイズ・梱包・重量</div>
-      <table className="cost-table">
+      <table className="cost-table size-table">
         <thead>
-          <tr><th style={{ width: 120 }}>区分</th><th>W</th><th>D</th><th>H</th><th>入数</th><th>重量</th><th style={{ width: 40 }}></th></tr>
+          <tr><th style={{ width: 110 }}>区分</th><th>W</th><th>D</th><th>H</th><th>入数</th><th>重量</th><th style={{ width: 40 }}></th></tr>
         </thead>
         <tbody>
           {p.sizes.map((s, si) => (

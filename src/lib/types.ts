@@ -83,9 +83,13 @@ export interface Product {
   schemaVersion: number;
   name: string; // 商品名
   category: string; // 任意の分類タグ
+  layout: LayoutMode; // 出力レイアウト
   cost: CostSheet;
   planning: PlanningSheet;
 }
+
+// 企画書の出力レイアウト
+export type LayoutMode = "standard" | "imageLarge" | "compact";
 
 // Supabase 上の 1 行
 export interface ProductRecord {

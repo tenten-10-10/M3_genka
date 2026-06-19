@@ -27,6 +27,7 @@ export function makeTemplateProduct(): Product {
     schemaVersion: SCHEMA_VERSION,
     name: "新規商品",
     category: "",
+    layout: "standard",
     cost: {
       setTotal: 10000,
       sellingPrice: 27800,
@@ -91,10 +92,7 @@ export function makeTemplateProduct(): Product {
       material: "",
       origin: "中国",
       approvals: "PSE,CE",
-      barcodes: [
-        { id: uid(), model: "", color: "ー", jan: "" },
-        { id: uid(), model: "ー", color: "ー", jan: "ー" },
-      ],
+      barcodes: [{ id: uid(), model: "", color: "", jan: "" }],
       sizes: [
         { id: uid(), label: "本体", w: "", d: "", h: "", qty: "", weight: "" },
         { id: uid(), label: "パッケージ", w: "", d: "", h: "", qty: "", weight: "" },
