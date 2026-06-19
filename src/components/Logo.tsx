@@ -1,15 +1,17 @@
 import { useState } from "react";
+import { useSettings } from "../lib/settings";
 
-// 正式ロゴ（public/showa-logo.png）が存在すれば表示。無ければ何も描画しない（仮ロゴは表示しない）。
+// アプリ設定にロゴURL（Supabase 公開URL）があれば表示。無ければ何も描画しない。
 // white=true でダーク背景用に白く表示する。
 export default function Logo({ height = 28, white = false }: { height?: number; white?: boolean }) {
-  const [ok, setOk] = useState(true);
-  if (!ok) return null;
+  const { logoUrl } = useSettings();
+  const [errored, setErrored] = useState(false);
+  if (!logoUrl || errored) return null;
   return (
     <img
-      src="/showa-logo.png"
+      src={logoUrl}
       alt="SHOWA"
-      onError={() => setOk(false)}
+      onError={() => setErrored(true)}
       crossOrigin="anonymous"
       style={{
         height,

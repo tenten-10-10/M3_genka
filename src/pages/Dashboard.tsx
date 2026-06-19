@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { listProducts, createProduct, deleteProduct, duplicateProduct } from "../lib/api";
+import { listProducts, createProduct, deleteProduct, duplicateProduct, uploadImage } from "../lib/api";
+import { setSetting, useSettings } from "../lib/settings";
 import { makeTemplateProduct } from "../lib/defaults";
 import { calcCost } from "../lib/calc";
 import { yen, pct } from "../lib/format";
@@ -14,6 +15,25 @@ export default function Dashboard() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const { logoUrl, setLogoUrl } = useSettings();
+  const logoInput = useRef<HTMLInputElement>(null);
+  const [logoBusy, setLogoBusy] = useState(false);
+
+  async function onLogoPick(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    setLogoBusy(true);
+    try {
+      const { url } = await uploadImage(file);
+      await setSetting("logo_url", url);
+      setLogoUrl(url);
+    } catch (e) {
+      setError("ロゴ設定に失敗: " + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setLogoBusy(false);
+      if (logoInput.current) logoInput.current.value = "";
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -75,6 +95,13 @@ export default function Dashboard() {
         <div className="dash-top">
           <h1>商品一覧</h1>
           <span className="spacer" />
+          {logoUrl && (
+            <img src={logoUrl} alt="ロゴ" style={{ height: 26, width: "auto", marginRight: 4 }} />
+          )}
+          <button className="btn-secondary" onClick={() => logoInput.current?.click()} disabled={logoBusy} title="PDF・企画書に表示するロゴ画像を設定">
+            {logoBusy ? "アップ中…" : logoUrl ? "🖼 ロゴ変更" : "🖼 ロゴ設定"}
+          </button>
+          <input ref={logoInput} type="file" accept="image/*" hidden onChange={(e) => onLogoPick(e.target.files)} />
           <input className="search" placeholder="検索（商品名・分類）" value={q} onChange={(e) => setQ(e.target.value)} />
           <button className="btn-primary" onClick={newProduct} disabled={busy}>
             ＋ 新規作成
