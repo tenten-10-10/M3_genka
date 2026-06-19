@@ -1,14 +1,22 @@
-// SHOWA ロゴ（インライン SVG・色変更可）。
-// ※正式ロゴ画像が手元に無いため再現版。public に正式 PNG を置けば差し替え可能。
-export default function Logo({ color = "#2d4c3b", height = 30 }: { color?: string; height?: number }) {
+import { useState } from "react";
+
+// 正式ロゴ（public/showa-logo.png）が存在すれば表示。無ければ何も描画しない（仮ロゴは表示しない）。
+// white=true でダーク背景用に白く表示する。
+export default function Logo({ height = 28, white = false }: { height?: number; white?: boolean }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
   return (
-    <svg height={height} viewBox="0 0 372 100" fill="none" role="img" aria-label="SHOWA">
-      {/* ヘルメット（ドーム＋つば＋S） */}
-      <path d="M20 62 a36 36 0 0 1 72 0 Z" fill={color} />
-      <rect x="9" y="62" width="94" height="15" rx="7.5" fill={color} />
-      <text x="56" y="57" textAnchor="middle" fontFamily="Arial, sans-serif" fontWeight="900" fontSize="30" fill="#ffffff">S</text>
-      {/* ワードマーク */}
-      <text x="120" y="74" fontFamily="Arial, Helvetica, sans-serif" fontWeight="900" fontSize="58" letterSpacing="2" fill={color}>SHOWA</text>
-    </svg>
+    <img
+      src="/showa-logo.png"
+      alt="SHOWA"
+      onError={() => setOk(false)}
+      crossOrigin="anonymous"
+      style={{
+        height,
+        width: "auto",
+        display: "block",
+        ...(white ? { filter: "brightness(0) invert(1)" } : {}),
+      }}
+    />
   );
 }

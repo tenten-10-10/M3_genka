@@ -27,8 +27,8 @@ export default function Header({
   return (
     <header className="app-header">
       <span className="brand" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }} onClick={goHome} title="トップに戻る">
-        <Logo color="#ffffff" height={26} />
-        <span style={{ fontSize: 13, opacity: 0.8, fontWeight: 600 }}>商品企画書 / 原価表</span>
+        <Logo white height={24} />
+        <span style={{ fontSize: 14, fontWeight: 700 }}>商品企画書 / 原価表</span>
       </span>
       {children}
       <span className="spacer" />

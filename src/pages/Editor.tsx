@@ -4,10 +4,11 @@ import Header from "../components/Header";
 import CostEditor from "../components/CostEditor";
 import PlanningEditor from "../components/PlanningEditor";
 import PrintDocument from "../components/PrintDocument";
+import LayoutPreview from "../components/LayoutPreview";
 import { getProduct, updateProduct } from "../lib/api";
 import type { LayoutMode, Product } from "../lib/types";
 
-type Tab = "planning" | "cost";
+type Tab = "planning" | "cost" | "preview";
 
 const safeName = (s: string) => (s || "product").replace(/[\\/:*?"<>|]/g, "_");
 
@@ -236,10 +237,13 @@ export default function Editor() {
       <div className="tabs">
         <button className={`tab ${tab === "planning" ? "active" : ""}`} onClick={() => setTab("planning")}>商品企画書</button>
         <button className={`tab ${tab === "cost" ? "active" : ""}`} onClick={() => setTab("cost")}>原価表</button>
+        <button className={`tab ${tab === "preview" ? "active" : ""}`} onClick={() => setTab("preview")}>🔍 プレビュー</button>
       </div>
 
       <div className="panel" style={{ marginBottom: 40 }}>
-        {tab === "planning" ? <PlanningEditor product={product} mutate={mutate} /> : <CostEditor product={product} mutate={mutate} />}
+        {tab === "planning" && <PlanningEditor product={product} mutate={mutate} />}
+        {tab === "cost" && <CostEditor product={product} mutate={mutate} />}
+        {tab === "preview" && <LayoutPreview product={{ ...product, name: name || product.name }} />}
       </div>
 
       {/* PDF / HTML 出力用（画面外） */}
