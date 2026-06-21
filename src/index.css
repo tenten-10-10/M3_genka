@@ -213,7 +213,126 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
 .modal p { color: var(--muted); margin: 0 0 20px; line-height: 1.6; }
 .modal .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
-@media (max-width: 720px) {
+/* ===========================================================================
+   レスポンシブ / スマホ最適化
+   - 出力（PDF・Excel・HTML）は画面外の固定幅 PrintDocument から生成するため、
+     ここでの調整は「編集画面の見た目」だけに影響し、書き出し結果はPCと同一。
+   =========================================================================== */
+
+/* タブレット以下：2〜3カラムのフォームを1カラムへ */
+@media (max-width: 760px) {
   .grid2, .grid3 { grid-template-columns: 1fr; }
-  .cost-table { font-size: 12px; }
+}
+
+/* スマホ（iPhone SE / iPhone 16 Pro など 〜640px）：小さい画面で編集しやすく */
+@media (max-width: 640px) {
+  /* iOS で入力フォーカス時に勝手に拡大されるのを防ぐ（16px以上が条件） */
+  input, textarea, select { font-size: 16px; }
+
+  /* タッチしやすいボタンサイズ */
+  button { min-height: 42px; }
+  .btn-sm { min-height: 36px; padding: 7px 12px; }
+
+  /* ---- ヘッダー ---- */
+  .app-header { height: 52px; padding: 0 12px; gap: 8px; }
+  .app-header .brand { min-width: 0; overflow: hidden; }
+  .app-header .brand > span { font-size: 12px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-header .user { display: none; }   /* メールアドレスはスペース確保のため非表示 */
+  .app-header .btn-ghost { padding: 6px 8px; }
+
+  /* ---- ページ余白 ---- */
+  .container { padding: 16px 12px 64px; }
+
+  /* ---- ダッシュボード上部（ロゴ・検索・新規作成を縦に整理） ---- */
+  .dash-top { flex-wrap: wrap; gap: 10px; }
+  .dash-top .spacer { display: none; }
+  .dash-top h1 { font-size: 20px; flex: 1 1 100%; }
+  .dash-top .btn-secondary { order: 5; }          /* ロゴ設定 */
+  .dash-top .search { order: 10; flex: 1 1 100%; max-width: none; }
+  .dash-top .btn-primary { order: 11; flex: 1 1 100%; }   /* ＋新規作成 */
+  .cards { grid-template-columns: 1fr; gap: 12px; }
+
+  /* ---- エディタ上部バー（縦積みで省スペース・固定解除） ---- */
+  .editor-bar { position: static; top: auto; flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+  .editor-bar .spacer { display: none; }
+  .editor-bar > .btn-ghost { order: 1; }                            /* ← 一覧 */
+  .editor-bar .btn-primary { order: 2; margin-left: auto; }         /* 保存（右寄せ） */
+  .editor-bar .name-input { order: 3; flex: 1 1 100%; max-width: none; }
+  .editor-bar .saved { order: 4; flex: 1 1 100%; }
+  .editor-bar .layout-select { order: 5; flex: 1 1 100%; min-width: 0; }
+  .editor-bar .btn-secondary { order: 6; flex: 1 1 auto; }          /* Excel / PDF / HTML */
+
+  /* ---- タブ（ヘッダー直下に固定・横スクロール対応） ---- */
+  .tabs {
+    position: sticky; top: 52px; z-index: 30;
+    background: var(--bg); padding: 10px 12px 0; gap: 4px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; padding: 9px 14px; }
+
+  /* ---- パネル・セクション ---- */
+  .panel { margin: 0 8px; padding: 14px 12px; border-radius: 0 10px 10px 10px; }
+  .section-title { margin: 18px 0 12px; }
+  .summary-grid, .inputs-row { grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 10px; }
+  .summary-cell .v { font-size: 18px; }
+  .images-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+  .preview-scroll { padding: 12px; }
+  .modal .actions button { flex: 1 1 auto; }
+
+  /* ---- 表をカード表示に（横スクロールせず1項目ずつ編集できる） ---- */
+  .resp-cards { display: block; width: 100%; font-size: 14px; }
+  .resp-cards thead { display: none; }
+  .resp-cards tbody { display: block; }
+  .resp-cards tr {
+    display: block;
+    background: #fff;
+    border: 1px solid var(--gray-line);
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px #0000000d;
+  }
+  .resp-cards td {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    border-bottom: 1px dashed var(--green-lighter);
+    padding: 7px 0;
+    background: transparent !important;
+    text-align: left;
+  }
+  .resp-cards tr td:last-child { border-bottom: none; }
+  .resp-cards td::before {
+    content: attr(data-label);
+    flex: 0 0 92px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .resp-cards td input,
+  .resp-cards td select {
+    width: 100%;
+    border: 1px solid var(--gray-line);
+    border-radius: 7px;
+    padding: 9px 10px;
+  }
+  /* 計算結果セル（セット原価・発注金額など）は値を強調表示 */
+  .resp-cards td.calc { font-weight: 800; font-size: 15px; color: var(--green-dark); }
+  /* 削除ボタンの行はラベル無し・右寄せ */
+  .resp-cards td.rm-cell { justify-content: flex-end; }
+  .resp-cards td.rm-cell::before { display: none; }
+  .resp-cards td.rm-cell .btn-danger,
+  .resp-cards td.rm-cell .btn-ghost { color: var(--red); }
+  /* 区分などの先頭セルの装飾を解除 */
+  .size-table.resp-cards td:first-child { background: transparent; min-width: 0; text-align: left; }
+  /* 合計行はカード表示では非表示（サマリーに同じ値を表示済み） */
+  .cost-table.resp-cards .totals-row { display: none; }
+}
+
+/* さらに小さい端末（iPhone SE 幅375px など）の微調整 */
+@media (max-width: 380px) {
+  .resp-cards td::before { flex-basis: 78px; font-size: 11px; }
+  .summary-grid, .inputs-row { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 }

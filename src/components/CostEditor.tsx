@@ -51,7 +51,7 @@ export default function CostEditor({ product, mutate }: { product: Product; muta
       <div className="section-title">原価明細</div>
       <div className="help">セット原価＝数量/セット×単価、発注金額＝単価×発注数（自動計算）</div>
       <div style={{ overflowX: "auto" }}>
-        <table className="cost-table">
+        <table className="cost-table resp-cards">
           <thead>
             <tr>
               <th style={{ width: 92 }}>区分</th>
@@ -72,27 +72,27 @@ export default function CostEditor({ product, mutate }: { product: Product; muta
               const line = calc.lines[i];
               return (
                 <tr key={it.id}>
-                  <td><input value={it.category} onChange={(e) => mutate((p) => { p.cost.items[i].category = e.target.value; })} /></td>
-                  <td><input value={it.item} onChange={(e) => mutate((p) => { p.cost.items[i].item = e.target.value; })} /></td>
-                  <td><input value={it.spec} onChange={(e) => mutate((p) => { p.cost.items[i].spec = e.target.value; })} /></td>
-                  <td><input className="num-input" type="number" value={it.qtyPerSet} onFocus={selOnFocus} onChange={(e) => mutate((p) => { p.cost.items[i].qtyPerSet = numv(e); })} /></td>
-                  <td><input className="num-input" type="number" value={it.unitPrice} onFocus={selOnFocus} onChange={(e) => mutate((p) => { p.cost.items[i].unitPrice = numv(e); })} /></td>
-                  <td className="calc">{num(line.setCost)}</td>
-                  <td><input className="num-input" type="number" value={it.orderQty} onFocus={selOnFocus} onChange={(e) => mutate((p) => { p.cost.items[i].orderQty = numv(e); })} /></td>
-                  <td className="calc">{num(line.orderAmount)}</td>
-                  <td><input value={it.supplier} onChange={(e) => mutate((p) => { p.cost.items[i].supplier = e.target.value; })} /></td>
-                  <td>
+                  <td data-label="区分"><input value={it.category} onChange={(e) => mutate((p) => { p.cost.items[i].category = e.target.value; })} /></td>
+                  <td data-label="品目"><input value={it.item} onChange={(e) => mutate((p) => { p.cost.items[i].item = e.target.value; })} /></td>
+                  <td data-label="仕様・メモ"><input value={it.spec} onChange={(e) => mutate((p) => { p.cost.items[i].spec = e.target.value; })} /></td>
+                  <td data-label="数量/ｾｯﾄ"><input className="num-input" type="number" value={it.qtyPerSet} onFocus={selOnFocus} onChange={(e) => mutate((p) => { p.cost.items[i].qtyPerSet = numv(e); })} /></td>
+                  <td data-label="単価"><input className="num-input" type="number" value={it.unitPrice} onFocus={selOnFocus} onChange={(e) => mutate((p) => { p.cost.items[i].unitPrice = numv(e); })} /></td>
+                  <td className="calc" data-label="セット原価">{num(line.setCost)}</td>
+                  <td data-label="発注数"><input className="num-input" type="number" value={it.orderQty} onFocus={selOnFocus} onChange={(e) => mutate((p) => { p.cost.items[i].orderQty = numv(e); })} /></td>
+                  <td className="calc" data-label="発注金額">{num(line.orderAmount)}</td>
+                  <td data-label="仕入先"><input value={it.supplier} onChange={(e) => mutate((p) => { p.cost.items[i].supplier = e.target.value; })} /></td>
+                  <td data-label="ステータス">
                     <select value={it.status} onChange={(e) => mutate((p) => { p.cost.items[i].status = e.target.value; })}>
                       {COST_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
-                  <td style={{ textAlign: "center" }}>
-                    <button className="btn-ghost btn-sm" title="削除" onClick={() => mutate((p) => { p.cost.items.splice(i, 1); })}>✕</button>
+                  <td className="rm-cell" data-label="操作" style={{ textAlign: "center" }}>
+                    <button className="btn-ghost btn-sm" title="削除" onClick={() => mutate((p) => { p.cost.items.splice(i, 1); })}>✕ 削除</button>
                   </td>
                 </tr>
               );
             })}
-            <tr>
+            <tr className="totals-row">
               <td colSpan={5} style={{ textAlign: "right", fontWeight: 700, padding: "8px" }}>合計</td>
               <td className="calc" style={{ fontWeight: 800 }}>{num(calc.setCost)}</td>
               <td></td>

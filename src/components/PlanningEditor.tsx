@@ -98,17 +98,17 @@ export default function PlanningEditor({ product, mutate }: { product: Product; 
       </div>
 
       <div className="section-title">商品バーコード・JAN</div>
-      <table className="cost-table">
+      <table className="cost-table resp-cards">
         <thead>
           <tr><th>型番</th><th>カラー</th><th>JAN</th><th style={{ width: 40 }}></th></tr>
         </thead>
         <tbody>
           {p.barcodes.map((b, bi) => (
             <tr key={b.id}>
-              <td><input value={b.model} onChange={(e) => mutate((pp) => (pp.planning.barcodes[bi].model = e.target.value))} /></td>
-              <td><input value={b.color} onChange={(e) => mutate((pp) => (pp.planning.barcodes[bi].color = e.target.value))} /></td>
-              <td><input value={b.jan} onChange={(e) => mutate((pp) => (pp.planning.barcodes[bi].jan = e.target.value))} /></td>
-              <td style={{ textAlign: "center" }}><button className="btn-ghost btn-sm" onClick={() => mutate((pp) => pp.planning.barcodes.splice(bi, 1))}>✕</button></td>
+              <td data-label="型番"><input value={b.model} onChange={(e) => mutate((pp) => (pp.planning.barcodes[bi].model = e.target.value))} /></td>
+              <td data-label="カラー"><input value={b.color} onChange={(e) => mutate((pp) => (pp.planning.barcodes[bi].color = e.target.value))} /></td>
+              <td data-label="JAN"><input value={b.jan} onChange={(e) => mutate((pp) => (pp.planning.barcodes[bi].jan = e.target.value))} /></td>
+              <td className="rm-cell" data-label="操作" style={{ textAlign: "center" }}><button className="btn-ghost btn-sm" onClick={() => mutate((pp) => pp.planning.barcodes.splice(bi, 1))}>✕ 削除</button></td>
             </tr>
           ))}
         </tbody>
@@ -116,20 +116,20 @@ export default function PlanningEditor({ product, mutate }: { product: Product; 
       <button className="btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={() => mutate((pp) => pp.planning.barcodes.push({ id: uid(), model: "", color: "", jan: "" }))}>＋ 行を追加</button>
 
       <div className="section-title">サイズ・梱包・重量</div>
-      <table className="cost-table size-table">
+      <table className="cost-table size-table resp-cards">
         <thead>
           <tr><th style={{ width: 110 }}>区分</th><th>W</th><th>D</th><th>H</th><th>入数</th><th>重量</th><th style={{ width: 40 }}></th></tr>
         </thead>
         <tbody>
           {p.sizes.map((s, si) => (
             <tr key={s.id}>
-              <td><input value={s.label} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].label = e.target.value))} /></td>
-              <td><input value={s.w} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].w = e.target.value))} /></td>
-              <td><input value={s.d} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].d = e.target.value))} /></td>
-              <td><input value={s.h} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].h = e.target.value))} /></td>
-              <td><input value={s.qty} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].qty = e.target.value))} /></td>
-              <td><input value={s.weight} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].weight = e.target.value))} /></td>
-              <td style={{ textAlign: "center" }}><button className="btn-ghost btn-sm" onClick={() => mutate((pp) => pp.planning.sizes.splice(si, 1))}>✕</button></td>
+              <td data-label="区分"><input value={s.label} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].label = e.target.value))} /></td>
+              <td data-label="W（幅mm）"><input value={s.w} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].w = e.target.value))} /></td>
+              <td data-label="D（奥行mm）"><input value={s.d} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].d = e.target.value))} /></td>
+              <td data-label="H（高さmm）"><input value={s.h} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].h = e.target.value))} /></td>
+              <td data-label="入数"><input value={s.qty} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].qty = e.target.value))} /></td>
+              <td data-label="重量"><input value={s.weight} onChange={(e) => mutate((pp) => (pp.planning.sizes[si].weight = e.target.value))} /></td>
+              <td className="rm-cell" data-label="操作" style={{ textAlign: "center" }}><button className="btn-ghost btn-sm" onClick={() => mutate((pp) => pp.planning.sizes.splice(si, 1))}>✕ 削除</button></td>
             </tr>
           ))}
         </tbody>
