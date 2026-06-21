@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>l0l0 — apps & tools</title>
+  <meta name="description" content="制作中のサイト・アプリをまとめたポータル" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --card: rgba(255, 255, 255, 0.04);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.10);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #34d399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans", Meiryo, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(52, 211, 153, 0.12), transparent 60%),
+        radial-gradient(900px 500px at -10% 110%, rgba(56, 189, 248, 0.10), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      min-height: 100vh;
+      min-height: 100dvh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: clamp(40px, 9vw, 96px) 20px 64px;
+    }
+    header { margin-bottom: clamp(32px, 7vw, 56px); }
+    .logo {
+      font-size: clamp(44px, 13vw, 80px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: clamp(15px, 4vw, 18px);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 620px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 22px 22px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover, .card:focus-visible {
+      transform: translateY(-3px);
+      background: var(--card-hover);
+      border-color: rgba(52, 211, 153, 0.45);
+      outline: none;
+    }
+    .card .icon {
+      width: 44px; height: 44px;
+      display: grid; place-items: center;
+      font-size: 24px;
+      border-radius: 12px;
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+    }
+    .card h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+    .card p { color: var(--muted); font-size: 14px; }
+    .card .go {
+      margin-top: auto;
+      padding-top: 6px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .card .host {
+      position: absolute; top: 18px; right: 20px;
+      font-size: 12px; color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .soon {
+      opacity: 0.55;
+      cursor: default;
+      border-style: dashed;
+    }
+    .soon:hover { transform: none; background: var(--card); border-color: var(--border); }
+    .soon .icon { background: rgba(148,163,184,0.10); border-color: rgba(148,163,184,0.2); }
+    .soon .go { color: var(--muted); }
+    footer {
+      margin-top: clamp(40px, 8vw, 64px);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">l0l0</div>
+      <p class="tagline">制作中のサイト・アプリをまとめたポータル</p>
+    </header>
+
+    <main class="grid">
+      <a class="card" href="https://genka.l0l0.app">
+        <span class="host">genka.l0l0.app</span>
+        <div class="icon">📊</div>
+        <h2>商品企画書・原価表</h2>
+        <p>Excelの企画書／原価表をWebアプリ化。ログイン・商品ごとの保存・自動計算・PDF／Excel／HTML出力に対応。スマホ対応済み。</p>
+        <span class="go">開く →</span>
+      </a>
+
+      <a class="card" href="https://cost-planter.jp">
+        <span class="host">cost-planter.jp</span>
+        <div class="icon">🧮</div>
+        <h2>cost-planter</h2>
+        <p>原価計算ツール。</p>
+        <span class="go">開く →</span>
+      </a>
+
+      <div class="card soon" aria-disabled="true">
+        <div class="icon">✨</div>
+        <h2>Coming soon</h2>
+        <p>新しいアプリ・サイトをここに追加していきます。</p>
+        <span class="go">準備中</span>
+      </div>
+    </main>
+
+    <footer>
+      © 2026 l0l0.app
+    </footer>
+  </div>
+</body>
+</html>
