@@ -37,7 +37,15 @@ function packBreaks(heights: number[], s: number): Set<number> {
   return brk;
 }
 
-export default function LayoutPreview({ product, includeCost }: { product: Product; includeCost?: boolean }) {
+export default function LayoutPreview({
+  product,
+  includeCost,
+  onToggleIncludeCost,
+}: {
+  product: Product;
+  includeCost?: boolean;
+  onToggleIncludeCost?: () => void;
+}) {
   const blocks = buildBlocks(product, { includeCost, media: "embed" });
   const measureRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -101,10 +109,15 @@ export default function LayoutPreview({ product, includeCost }: { product: Produ
 
   return (
     <div ref={wrapRef} className="preview-scroll">
-      <div className="help" style={{ marginTop: 0, marginBottom: 12 }}>
-        A4 で出力した際のページ割りプレビューです（なるべく {MAX_PAGES} 枚以内に収めます）。
-        {scale < 1 && <>　現在 <b>{Math.round(scale * 100)}%</b> に縮小して {MAX_PAGES} 枚に収めています。</>}
-        レイアウトや原価表の有無はツールバーで切り替えできます。
+      <div className="preview-bar">
+        <label className="prev-toggle">
+          <input type="checkbox" checked={includeCost !== false} onChange={() => onToggleIncludeCost?.()} />
+          原価表を含める
+        </label>
+        <span className="prev-bar-note">
+          A4 ページ割りプレビュー（なるべく {MAX_PAGES} 枚以内）
+          {scale < 1 && <>・<b>{Math.round(scale * 100)}%</b> に縮小中</>}
+        </span>
       </div>
       <div style={{ zoom: screenScale } as React.CSSProperties}>
         {pages.map((page, pi) => (

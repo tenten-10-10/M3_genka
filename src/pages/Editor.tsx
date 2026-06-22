@@ -268,7 +268,7 @@ export default function Editor() {
       <div className="panel" style={{ marginBottom: 40 }}>
         {tab === "planning" && <PlanningEditor product={product} mutate={mutate} />}
         {tab === "cost" && <CostEditor product={product} mutate={mutate} />}
-        {tab === "preview" && <LayoutPreview product={{ ...product, name: name || product.name }} includeCost={includeCost} />}
+        {tab === "preview" && <LayoutPreview product={{ ...product, name: name || product.name }} includeCost={includeCost} onToggleIncludeCost={() => setIncludeCost((v) => !v)} />}
       </div>
 
       {/* PDF / HTML 出力用（画面外） */}

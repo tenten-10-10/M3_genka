@@ -16,7 +16,21 @@ export default function ImageManager({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [over, setOver] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
   const dragDepth = useRef(0);
+
+  function addUrl() {
+    const u = urlInput.trim();
+    if (!u) return;
+    if (!/^https?:\/\//i.test(u)) {
+      setErr("http(s):// で始まる直接URLを入力してください");
+      return;
+    }
+    const kind: "image" | "video" = /\.(mp4|webm|mov|m4v|ogg|ogv)(\?|#|$)/i.test(u) ? "video" : "image";
+    onChange([...images, { id: uid(), url: u, caption: "", kind }]);
+    setUrlInput("");
+    setErr("");
+  }
 
   async function onPick(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -37,7 +51,12 @@ export default function ImageManager({
       }
       onChange([...images, ...added]);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/maximum allowed size|payload too large|exceeded|413|too large/i.test(msg)) {
+        setErr("ファイルサイズが大きすぎてアップロードできませんでした。動画は軽く（〜500MB目安）するか、下の「URLで追加」で外部URL（YouTube等にアップした動画の直接URL）を指定してください。");
+      } else {
+        setErr("アップロードに失敗しました: " + msg);
+      }
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -111,6 +130,16 @@ export default function ImageManager({
             </>
           )}
         </div>
+      </div>
+      <div className="img-url">
+        <input
+          type="url"
+          placeholder="または画像・動画の直接URLを貼り付け（https://….mp4 など）"
+          value={urlInput}
+          onChange={(e) => setUrlInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addUrl(); } }}
+        />
+        <button className="btn-secondary btn-sm" onClick={addUrl} disabled={!urlInput.trim()}>URLで追加</button>
       </div>
       <input ref={inputRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => onPick(e.target.files)} />
     </div>

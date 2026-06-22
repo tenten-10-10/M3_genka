@@ -247,6 +247,9 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
 .img-add:hover { background: #e2efe7; }
 .img-add-hint { font-size: 11px; font-weight: 600; opacity: 0.75; }
 
+.img-url { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+.img-url input { flex: 1; }
+
 /* 画像のドラッグ&ドロップ領域 */
 .img-zone { border-radius: 12px; transition: background 0.15s, box-shadow 0.15s; }
 .img-zone.over { background: #e2efe7; box-shadow: 0 0 0 2px var(--green) inset; }
@@ -282,6 +285,15 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
 
 /* レイアウトプレビュー（A4ページ割り） */
 .preview-scroll { position: relative; background: #e6ece8; padding: 20px; border-radius: 10px; overflow-x: auto; }
+.preview-bar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: #fff; border: 1px solid var(--gray-line); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 14px;
+}
+.prev-toggle { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; color: var(--green-darkest); cursor: pointer; }
+.prev-toggle input { width: auto; margin: 0; cursor: pointer; }
+.prev-bar-note { font-size: 12px; color: var(--muted); }
 .a4-page { background: #fff; box-shadow: 0 3px 18px #00000022; margin: 0 auto 24px; position: relative; }
 .a4-page .page-no { position: absolute; top: -17px; right: 2px; font-size: 11px; color: var(--muted); font-weight: 600; }
 
