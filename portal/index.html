@@ -8,7 +8,7 @@
   <meta name="description" content="つくったものを、ひとつの場所に。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #ffffff;
@@ -23,8 +23,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
     body {
-      font-family: "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont,
-        "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      font-family: "Shippori Mincho", "Noto Serif JP", "Hiragino Mincho ProN",
+        "YuMincho", "Yu Mincho", "MS PMincho", serif;
       color: var(--ink);
       background: var(--bg);
       -webkit-font-smoothing: antialiased;
@@ -44,7 +44,7 @@
       border-bottom: 1px solid var(--line);
     }
     .nav .mark {
-      font-size: 18px; font-weight: 600; letter-spacing: 0.04em;
+      font-size: 19px; font-weight: 700; letter-spacing: 0.06em;
       color: var(--ink); text-decoration: none;
     }
 
@@ -60,12 +60,12 @@
     }
     .hero h1 {
       font-size: clamp(46px, 9.5vw, 92px);
-      font-weight: 700; letter-spacing: -0.04em; line-height: 1.02;
+      font-weight: 800; letter-spacing: 0.01em; line-height: 1.06;
     }
     .hero p {
-      margin-top: clamp(12px, 2.2vw, 20px);
+      margin-top: clamp(14px, 2.4vw, 24px);
       font-size: clamp(18px, 3vw, 25px);
-      font-weight: 500; color: var(--sub); letter-spacing: 0.005em;
+      font-weight: 500; color: var(--sub); letter-spacing: 0.06em; line-height: 1.7;
     }
 
     /* ---------- grid ---------- */
@@ -116,12 +116,12 @@
     .body { padding: clamp(16px, 2.2vw, 22px) clamp(10px, 1.4vw, 14px) clamp(6px, 1vw, 10px); }
     .tile h2 {
       font-size: clamp(20px, 2.6vw, 25px);
-      font-weight: 600; letter-spacing: -0.015em; line-height: 1.25;
+      font-weight: 700; letter-spacing: 0.02em; line-height: 1.35;
     }
     .tile .sub {
-      margin-top: 8px;
+      margin-top: 10px;
       font-size: clamp(14px, 1.85vw, 15.5px);
-      line-height: 1.65; color: var(--sub); max-width: 42ch;
+      line-height: 1.85; color: var(--sub); max-width: 42ch; letter-spacing: 0.02em;
     }
     .meta {
       margin-top: clamp(18px, 2.4vw, 24px);
