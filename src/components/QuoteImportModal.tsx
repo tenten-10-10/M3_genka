@@ -84,7 +84,13 @@ export default function QuoteImportModal({
       setStage("review");
       void doFetchRates(true);
     } catch (e) {
-      setError("PDFの解析に失敗しました: " + (e instanceof Error ? e.message : String(e)));
+      const msg = e instanceof Error ? e.message : String(e);
+      const loadFail = /MIME|dynamically imported module|Failed to fetch|Importing a module|chunk|worker/i.test(msg);
+      setError(
+        loadFail
+          ? "アプリが更新された可能性があります。ページを再読み込み（リロード）してから、もう一度お試しください。"
+          : "PDFの解析に失敗しました: " + msg
+      );
       setStage("pick");
     }
   }

@@ -23,6 +23,7 @@ export default function Editor() {
   const [savedAt, setSavedAt] = useState<string>("");
   const [toast, setToast] = useState("");
   const [exporting, setExporting] = useState(false);
+  const [includeCost, setIncludeCost] = useState(true);
   const [navTarget, setNavTarget] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -163,7 +164,7 @@ export default function Editor() {
     setExporting(true);
     try {
       const { exportExcel } = await import("../lib/excel");
-      await exportExcel({ ...product, name: name || product.name });
+      await exportExcel({ ...product, name: name || product.name }, { includeCost });
       showToast("Excel を書き出しました");
     } catch (e) {
       showToast("Excel 出力に失敗: " + (e instanceof Error ? e.message : String(e)));
@@ -228,6 +229,10 @@ export default function Editor() {
           <option value="imageLarge">レイアウト：画像を大きく</option>
           <option value="compact">レイアウト：コンパクト</option>
         </select>
+        <label className="incl-cost" title="PDF / HTML / Excel / プレビューに原価表を含めるか">
+          <input type="checkbox" checked={includeCost} onChange={(e) => setIncludeCost(e.target.checked)} />
+          原価表を含める
+        </label>
         <button className="btn-secondary" onClick={onExcel} disabled={exporting}>📊 Excel</button>
         <button className="btn-secondary" onClick={onPdf} disabled={exporting}>📄 PDF</button>
         <button className="btn-secondary" onClick={onHtml} disabled={exporting}>🌐 HTML</button>
@@ -243,11 +248,11 @@ export default function Editor() {
       <div className="panel" style={{ marginBottom: 40 }}>
         {tab === "planning" && <PlanningEditor product={product} mutate={mutate} />}
         {tab === "cost" && <CostEditor product={product} mutate={mutate} />}
-        {tab === "preview" && <LayoutPreview product={{ ...product, name: name || product.name }} />}
+        {tab === "preview" && <LayoutPreview product={{ ...product, name: name || product.name }} includeCost={includeCost} />}
       </div>
 
       {/* PDF / HTML 出力用（画面外） */}
-      <PrintDocument ref={printRef} product={{ ...product, name: name || product.name }} />
+      <PrintDocument ref={printRef} product={{ ...product, name: name || product.name }} includeCost={includeCost} />
 
       {toast && <div className="toast">{toast}</div>}
       {exporting && <div className="toast">書き出し中…</div>}

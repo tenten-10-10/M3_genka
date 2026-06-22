@@ -1,12 +1,13 @@
 import { forwardRef } from "react";
-import type { Product, SizeRow } from "../lib/types";
+import type { Product, ProductImage, SizeRow } from "../lib/types";
 import { calcCost } from "../lib/calc";
 import { yen, num, pct } from "../lib/format";
 import Logo from "./Logo";
 
 // 企画書の各セクションを data-pdf-block 単位の配列で生成する。
 // PrintDocument（出力キャプチャ用）と LayoutPreview（プレビュー用）で共用する。
-export function buildBlocks(product: Product): React.ReactElement[] {
+export function buildBlocks(product: Product, opts: { includeCost?: boolean } = {}): React.ReactElement[] {
+  const includeCost = opts.includeCost !== false;
   const p = product.planning;
   const calc = calcCost(product.cost);
   const layout = product.layout || "standard";
@@ -61,9 +62,9 @@ export function buildBlocks(product: Product): React.ReactElement[] {
           {p.mainImages.length === 0 ? (
             <div style={{ ...td, color: "#aaa", width: "100%", textAlign: "center", padding: 24 }}>（画像なし）</div>
           ) : (
-            p.mainImages.map((img) => (
-              <img key={img.id} src={img.url} crossOrigin="anonymous" style={{ width: "100%", maxHeight: 520, border: "1px solid #ddd", objectFit: "contain" }} />
-            ))
+            p.mainImages.map((img) =>
+              mediaEl(img, { width: "100%", maxHeight: 520, border: "1px solid #ddd", objectFit: "contain" }, fTd)
+            )
           )}
         </div>
       </div>
@@ -85,9 +86,9 @@ export function buildBlocks(product: Product): React.ReactElement[] {
             {p.mainImages.length === 0 ? (
               <div style={{ ...td, color: "#aaa", width: "100%", textAlign: "center", padding: 24 }}>（画像なし）</div>
             ) : (
-              p.mainImages.map((img) => (
-                <img key={img.id} src={img.url} crossOrigin="anonymous" style={{ width: mainW, maxHeight: mainMax, border: "1px solid #ddd", objectFit: "contain" }} />
-              ))
+              p.mainImages.map((img) =>
+                mediaEl(img, { width: mainW, maxHeight: mainMax, border: "1px solid #ddd", objectFit: "contain" }, fTd)
+              )
             )}
           </div>
         </div>
@@ -206,7 +207,7 @@ export function buildBlocks(product: Product): React.ReactElement[] {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: big ? "center" : "flex-start" }}>
           {p.detailImages.map((img) => (
             <div key={img.id} style={{ width: detailW }}>
-              <img src={img.url} crossOrigin="anonymous" style={{ width: "100%", maxHeight: big ? 520 : 300, border: "1px solid #ddd", objectFit: "contain" }} />
+              {mediaEl(img, { width: "100%", maxHeight: big ? 520 : 300, border: "1px solid #ddd", objectFit: "contain" }, fTd)}
               {img.caption && <div style={{ fontSize: fTd - 1, textAlign: "center", color: "#666" }}>{img.caption}</div>}
             </div>
           ))}
@@ -222,8 +223,9 @@ export function buildBlocks(product: Product): React.ReactElement[] {
     </div>
   );
 
-  // 原価表
-  blocks.push(
+  // 原価表（含めるかどうかを選択可能）
+  if (includeCost)
+    blocks.push(
     <div key="cost" data-pdf-block style={{ breakInside: "avoid", marginTop: 16 }}>
       <div style={{ background: "#243e33", color: "#fff", textAlign: "center", fontSize: 17, fontWeight: 700, padding: "9px", letterSpacing: "0.1em" }}>原 価 表</div>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
@@ -278,15 +280,36 @@ export function buildBlocks(product: Product): React.ReactElement[] {
   return blocks;
 }
 
-const PrintDocument = forwardRef<HTMLDivElement, { product: Product }>(({ product }, ref) => (
-  <div
-    ref={ref}
-    className="print-doc"
-    style={{ position: "fixed", left: -10000, top: 0, width: 800, background: "#fff", color: "#243029", padding: 26, fontFamily: '"Noto Sans JP","Hiragino Sans",Meiryo,sans-serif' }}
-  >
-    {buildBlocks(product)}
-  </div>
-));
+const PrintDocument = forwardRef<HTMLDivElement, { product: Product; includeCost?: boolean }>(
+  ({ product, includeCost }, ref) => (
+    <div
+      ref={ref}
+      className="print-doc"
+      style={{ position: "fixed", left: -10000, top: 0, width: 800, background: "#fff", color: "#243029", padding: 26, fontFamily: '"Noto Sans JP","Hiragino Sans",Meiryo,sans-serif' }}
+    >
+      {buildBlocks(product, { includeCost })}
+    </div>
+  )
+);
+
+// 画像は <img>、動画は出力できないため代替表示（プレースホルダ）にする。
+function mediaEl(img: ProductImage, style: React.CSSProperties, fontSize: number): React.ReactElement {
+  if (img.kind === "video") {
+    const h = typeof style.maxHeight === "number" ? Math.min(style.maxHeight, 200) : 160;
+    return (
+      <div
+        key={img.id}
+        style={{ ...style, height: h, display: "grid", placeItems: "center", background: "#eef2f0", border: "1px dashed #b9c7c0", color: "#56685f", textAlign: "center", padding: 8, boxSizing: "border-box" }}
+      >
+        <div>
+          <div style={{ fontSize: fontSize + 4, fontWeight: 700 }}>▶ 動画{img.caption ? `：${img.caption}` : ""}</div>
+          <div style={{ fontSize: fontSize - 1, marginTop: 4 }}>（PDF・印刷には表示されません）</div>
+        </div>
+      </div>
+    );
+  }
+  return <img key={img.id} src={img.url} crossOrigin="anonymous" style={style} />;
+}
 
 function sizeStr(s: SizeRow): string {
   if (!s.w && !s.d && !s.h) return "";

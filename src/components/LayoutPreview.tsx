@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Product } from "../lib/types";
 import { buildBlocks } from "./PrintDocument";
 
@@ -10,40 +10,48 @@ const INNER_H = Math.round((INNER_W * 281) / 194); // A4 本文領域 ≒ 1083px
 const CARD_H = INNER_H + PADDING * 2;
 const GAP = (INNER_W * 2.5) / 194;
 
-export default function LayoutPreview({ product }: { product: Product }) {
-  const blocks = buildBlocks(product);
+const MAX_PAGES = 2;
+const MIN_SCALE = 0.6;
+
+// ブロック高さの配列から、指定スケールでのページ区切りを求める（pdf.ts と同じ考え方）
+function packBreaks(heights: number[], s: number): Set<number> {
+  const brk = new Set<number>();
+  let cursor = 0;
+  let firstOnPage = true;
+  heights.forEach((h0, i) => {
+    const h = h0 * s;
+    if (h > INNER_H) {
+      if (!firstOnPage) brk.add(i);
+      cursor = INNER_H + 1;
+      firstOnPage = false;
+      return;
+    }
+    if (!firstOnPage && cursor + h > INNER_H) {
+      brk.add(i);
+      cursor = 0;
+      firstOnPage = true;
+    }
+    cursor += h + GAP * s;
+    firstOnPage = false;
+  });
+  return brk;
+}
+
+export default function LayoutPreview({ product, includeCost }: { product: Product; includeCost?: boolean }) {
+  const blocks = buildBlocks(product, { includeCost });
   const measureRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [breaks, setBreaks] = useState<Set<number>>(new Set());
-  const [scale, setScale] = useState(1);
+  const [heights, setHeights] = useState<number[]>([]);
+  const [screenScale, setScreenScale] = useState(1);
   const [tick, setTick] = useState(0);
 
-  // 各ブロックの実寸からページ割りを計算（出力側 pdf.ts と同じロジック）
+  // 各ブロックの実寸を測定
   useLayoutEffect(() => {
     const c = measureRef.current;
     if (!c) return;
     const els = Array.from(c.querySelectorAll<HTMLElement>("[data-pdf-block]"));
-    const brk = new Set<number>();
-    let cursor = 0;
-    let firstOnPage = true;
-    els.forEach((el, i) => {
-      const h = el.offsetHeight;
-      if (h > INNER_H) {
-        if (!firstOnPage) brk.add(i);
-        cursor = INNER_H + 1;
-        firstOnPage = false;
-        return;
-      }
-      if (!firstOnPage && cursor + h > INNER_H) {
-        brk.add(i);
-        cursor = 0;
-        firstOnPage = true;
-      }
-      cursor += h + GAP;
-      firstOnPage = false;
-    });
-    setBreaks(brk);
-  }, [product, tick]);
+    setHeights(els.map((el) => el.offsetHeight));
+  }, [product, includeCost, tick]);
 
   // 画像の読み込み後に再計測
   useEffect(() => {
@@ -53,19 +61,34 @@ export default function LayoutPreview({ product }: { product: Product }) {
     const onLoad = () => setTick((t) => t + 1);
     imgs.forEach((im) => { if (!im.complete) im.addEventListener("load", onLoad); });
     return () => imgs.forEach((im) => im.removeEventListener("load", onLoad));
-  }, [product]);
+  }, [product, includeCost]);
 
   // 画面幅に合わせて縮小
   useEffect(() => {
     function fit() {
       const w = wrapRef.current?.clientWidth ?? CARD_W;
-      setScale(Math.min(1, (w - 8) / CARD_W));
+      setScreenScale(Math.min(1, (w - 8) / CARD_W));
     }
     fit();
     const ro = new ResizeObserver(fit);
     if (wrapRef.current) ro.observe(wrapRef.current);
     return () => ro.disconnect();
   }, []);
+
+  // なるべく MAX_PAGES 枚に収まるスケールとページ区切りを決定（pdf.ts と同じ）
+  const { scale, breaks } = useMemo(() => {
+    if (!heights.length) return { scale: 1, breaks: new Set<number>() };
+    let brk = packBreaks(heights, 1);
+    if (brk.size + 1 <= MAX_PAGES) return { scale: 1, breaks: brk };
+    let s = MIN_SCALE;
+    for (let t = 1; t >= MIN_SCALE; t -= 0.02) {
+      const bb = packBreaks(heights, t);
+      if (bb.size + 1 <= MAX_PAGES) { s = Math.round(t * 100) / 100; brk = bb; break; }
+      brk = bb;
+      s = Math.round(t * 100) / 100;
+    }
+    return { scale: s, breaks: brk };
+  }, [heights]);
 
   // ブロックをページごとに分割
   const pages: React.ReactElement[][] = [];
@@ -79,21 +102,25 @@ export default function LayoutPreview({ product }: { product: Product }) {
   return (
     <div ref={wrapRef} className="preview-scroll">
       <div className="help" style={{ marginTop: 0, marginBottom: 12 }}>
-        A4 で出力した際のページ割りプレビューです。レイアウトはツールバーの「レイアウト」で切り替えできます。
+        A4 で出力した際のページ割りプレビューです（なるべく {MAX_PAGES} 枚以内に収めます）。
+        {scale < 1 && <>　現在 <b>{Math.round(scale * 100)}%</b> に縮小して {MAX_PAGES} 枚に収めています。</>}
+        レイアウトや原価表の有無はツールバーで切り替えできます。
       </div>
-      <div style={{ zoom: scale } as React.CSSProperties}>
+      <div style={{ zoom: screenScale } as React.CSSProperties}>
         {pages.map((page, pi) => (
           <div
             key={pi}
             className="a4-page"
-            style={{ width: CARD_W, minHeight: CARD_H, padding: PADDING, boxSizing: "border-box", fontFamily: '"Noto Sans JP","Hiragino Sans",Meiryo,sans-serif', color: "#243029" }}
+            style={{ width: CARD_W, height: CARD_H, padding: PADDING, boxSizing: "border-box", overflow: "hidden", fontFamily: '"Noto Sans JP","Hiragino Sans",Meiryo,sans-serif', color: "#243029" }}
           >
             <span className="page-no">ページ {pi + 1} / {pages.length}</span>
-            {page}
+            <div style={{ width: INNER_W, transform: scale < 1 ? `scale(${scale})` : undefined, transformOrigin: "top center" }}>
+              {page}
+            </div>
           </div>
         ))}
       </div>
-      {/* 計測用（非表示） */}
+      {/* 計測用（非表示・等倍） */}
       <div ref={measureRef} aria-hidden style={{ position: "absolute", left: -10000, top: 0, width: CARD_W, padding: PADDING, boxSizing: "border-box" }}>
         {blocks}
       </div>

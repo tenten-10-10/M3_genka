@@ -23,15 +23,17 @@ export default function ImageManager({
     setBusy(true);
     setErr("");
     try {
-      const list = Array.from(files).filter((f) => f.type.startsWith("image/"));
+      const list = Array.from(files).filter(
+        (f) => f.type.startsWith("image/") || f.type.startsWith("video/")
+      );
       if (list.length === 0) {
-        setErr("画像ファイルを選択してください");
+        setErr("画像または動画ファイルを選択してください");
         return;
       }
       const added: ProductImage[] = [];
       for (const file of list) {
         const { url, path } = await uploadImage(file);
-        added.push({ id: uid(), url, path, caption: "" });
+        added.push({ id: uid(), url, path, caption: "", kind: file.type.startsWith("video/") ? "video" : "image" });
       }
       onChange([...images, ...added]);
     } catch (e) {
@@ -84,7 +86,11 @@ export default function ImageManager({
         {images.map((img) => (
           <div className="img-tile" key={img.id}>
             <button className="del" onClick={() => del(img)} title="削除">✕</button>
-            <img src={img.url} alt={img.caption || ""} />
+            {img.kind === "video" ? (
+              <video src={img.url} controls preload="metadata" style={{ width: "100%", height: 130, objectFit: "contain", background: "#000", display: "block" }} />
+            ) : (
+              <img src={img.url} alt={img.caption || ""} />
+            )}
             <input
               className="cap"
               placeholder="キャプション"
@@ -101,12 +107,12 @@ export default function ImageManager({
           ) : (
             <>
               ＋ {label}を追加
-              <span className="img-add-hint">クリック / ドラッグ＆ドロップ</span>
+              <span className="img-add-hint">クリック / ドラッグ＆ドロップ（画像・動画）</span>
             </>
           )}
         </div>
       </div>
-      <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={(e) => onPick(e.target.files)} />
+      <input ref={inputRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => onPick(e.target.files)} />
     </div>
   );
 }

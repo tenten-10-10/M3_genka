@@ -197,6 +197,8 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
 .editor-bar .name-input { max-width: 360px; font-weight: 700; font-size: 15px; }
 .editor-bar .spacer { flex: 1; }
 .editor-bar .saved { font-size: 12px; color: var(--muted); }
+.incl-cost { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; cursor: pointer; }
+.incl-cost input { width: auto; margin: 0; cursor: pointer; }
 
 .tabs { display: flex; gap: 4px; padding: 12px 20px 0; }
 .tab { padding: 9px 18px; border-radius: 8px 8px 0 0; background: transparent; color: var(--muted); font-weight: 700; }
@@ -368,6 +370,7 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
   .editor-bar .name-input { order: 3; flex: 1 1 100%; max-width: none; }
   .editor-bar .saved { order: 4; flex: 1 1 100%; }
   .editor-bar .layout-select { order: 5; flex: 1 1 100%; min-width: 0; }
+  .editor-bar .incl-cost { order: 5; flex: 1 1 100%; }              /* 原価表を含める */
   .editor-bar .btn-secondary { order: 6; flex: 1 1 auto; }          /* Excel / PDF / HTML */
 
   /* ---- タブ（ヘッダー直下に固定・横スクロール対応） ---- */

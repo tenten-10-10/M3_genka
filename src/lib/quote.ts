@@ -3,6 +3,9 @@
 // - 行から「品目・単価・通貨・MOQ」を抽出（parseQuote は純粋関数でテスト可能）
 // - 為替レートの取得・換算
 
+// ワーカーURLはビルド時に確定（ハッシュ付きアセット）。実行時の別チャンク取得を避けて堅牢化。
+import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
 export type Currency = "USD" | "CNY" | "EUR" | "JPY";
 
 export const CURRENCIES: { code: Currency; label: string; symbol: string }[] = [
@@ -202,7 +205,6 @@ export async function fetchRates(): Promise<Rates> {
 // PDF からテキスト行を抽出（pdfjs はここで遅延ロード）
 export async function extractLinesFromPdf(file: File): Promise<string[]> {
   const pdfjsLib = await import("pdfjs-dist");
-  const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
   pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
   const data = new Uint8Array(await file.arrayBuffer());

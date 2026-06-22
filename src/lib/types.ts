@@ -29,6 +29,7 @@ export interface ProductImage {
   url: string;
   path?: string; // Supabase Storage 上のパス
   caption?: string;
+  kind?: "image" | "video"; // 既定は image。動画は編集画面で再生可、出力では代替表示。
 }
 
 export interface SpecSection {

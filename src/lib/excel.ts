@@ -8,16 +8,18 @@ const HEAD_BLUE = "FF4285F4";
 const LIGHT = "FFDAE5D8";
 const YELLOW = "FFFFF6D6";
 
-export async function exportExcel(product: Product): Promise<void> {
+export async function exportExcel(product: Product, opts: { includeCost?: boolean } = {}): Promise<void> {
+  const includeCost = opts.includeCost !== false;
   const wb = new ExcelJS.Workbook();
   wb.creator = "商品企画書ツール";
   wb.created = new Date();
 
-  buildCostSheet(wb, product);
+  if (includeCost) buildCostSheet(wb, product);
   buildPlanningSheet(wb, product);
 
   const buf = await wb.xlsx.writeBuffer();
-  download(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${safe(product.name)}_原価表・企画書.xlsx`);
+  const fname = includeCost ? `${safe(product.name)}_原価表・企画書.xlsx` : `${safe(product.name)}_企画書.xlsx`;
+  download(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), fname);
 }
 
 function buildCostSheet(wb: ExcelJS.Workbook, product: Product) {
