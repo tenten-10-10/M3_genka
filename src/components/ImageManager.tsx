@@ -15,15 +15,21 @@ export default function ImageManager({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [over, setOver] = useState(false);
+  const dragDepth = useRef(0);
 
   async function onPick(files: FileList | null) {
     if (!files || files.length === 0) return;
     setBusy(true);
     setErr("");
     try {
+      const list = Array.from(files).filter((f) => f.type.startsWith("image/"));
+      if (list.length === 0) {
+        setErr("画像ファイルを選択してください");
+        return;
+      }
       const added: ProductImage[] = [];
-      for (const file of Array.from(files)) {
-        if (!file.type.startsWith("image/")) continue;
+      for (const file of list) {
         const { url, path } = await uploadImage(file);
         added.push({ id: uid(), url, path, caption: "" });
       }
@@ -41,8 +47,38 @@ export default function ImageManager({
     removeImage(img.path).catch(() => {});
   }
 
+  function onDragEnter(e: React.DragEvent) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth.current += 1;
+    setOver(true);
+  }
+  function onDragOver(e: React.DragEvent) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }
+  function onDragLeave(e: React.DragEvent) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) setOver(false);
+  }
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    dragDepth.current = 0;
+    setOver(false);
+    if (!busy) onPick(e.dataTransfer.files);
+  }
+
   return (
-    <div>
+    <div
+      className={"img-zone" + (over ? " over" : "")}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
       {err && <div className="help" style={{ color: "var(--red)" }}>{err}</div>}
       <div className="images-grid">
         {images.map((img) => (
@@ -57,11 +93,26 @@ export default function ImageManager({
             />
           </div>
         ))}
-        <div className="img-add" onClick={() => !busy && inputRef.current?.click()}>
-          {busy ? "アップロード中…" : `＋ ${label}を追加`}
+        <div className={"img-add" + (over ? " over" : "")} onClick={() => !busy && inputRef.current?.click()}>
+          {busy ? (
+            "アップロード中…"
+          ) : over ? (
+            "ここにドロップ"
+          ) : (
+            <>
+              ＋ {label}を追加
+              <span className="img-add-hint">クリック / ドラッグ＆ドロップ</span>
+            </>
+          )}
         </div>
       </div>
       <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={(e) => onPick(e.target.files)} />
     </div>
   );
+}
+
+// ドラッグ中のデータにファイルが含まれるか（テキスト等のドラッグでは反応しない）
+function hasFiles(e: React.DragEvent): boolean {
+  const types = e.dataTransfer?.types;
+  return !!types && Array.from(types).includes("Files");
 }

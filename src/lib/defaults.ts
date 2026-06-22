@@ -121,3 +121,53 @@ function line(
 ) {
   return { id: uid(), category, item, spec, qtyPerSet, unitPrice, orderQty, supplier: "", status: "未発注", note: "" };
 }
+
+// 新規作成用：中身が空の商品（明細・企画書の内容は入れない）。
+// レート系の既定値（粗利率目標・消費税）と会社情報のみ初期値として保持する。
+export function makeEmptyProduct(): Product {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    name: "新規商品",
+    category: "",
+    layout: "standard",
+    cost: {
+      setTotal: 0,
+      sellingPrice: 0,
+      moldTotal: 0,
+      targetGrossMarginRate: 0.5,
+      taxRate: 0.1,
+      moq: 0,
+      items: [],
+    },
+    planning: {
+      releasePeriod: "",
+      person: "",
+      mainImages: [],
+      sellingPoints: "",
+      headCopy: "",
+      specSections: [],
+      color: "",
+      includedItems: "",
+      specText: "",
+      power: "",
+      material: "",
+      origin: "",
+      approvals: "",
+      barcodes: [{ id: uid(), model: "", color: "", jan: "" }],
+      sizes: [
+        { id: uid(), label: "本体", w: "", d: "", h: "", qty: "", weight: "" },
+        { id: uid(), label: "パッケージ", w: "", d: "", h: "", qty: "", weight: "" },
+        { id: uid(), label: "インナー", w: "", d: "", h: "", qty: "", weight: "" },
+        { id: uid(), label: "アウター", w: "", d: "", h: "", qty: "", weight: "" },
+      ],
+      remarks: "",
+      testInfo: "",
+      separateItems: "",
+      notes: "",
+      detailImages: [],
+      footerNote: "※企画中商品のため、仕様など変更になる可能性がございます",
+      company:
+        "株式会社昭和商会　〒141-0031 東京都品川区西五反田1-16-5　TEL.03-6303-9614　FAX.03-6303-9615",
+    },
+  };
+}

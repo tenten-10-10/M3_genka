@@ -241,8 +241,14 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
 .img-tile img { width: 100%; height: 130px; object-fit: contain; display: block; background: #fff; }
 .img-tile .cap { width: 100%; border: none; border-top: 1px solid var(--gray-line); border-radius: 0; font-size: 12px; padding: 5px 7px; }
 .img-tile .del { position: absolute; top: 6px; right: 6px; background: #000000aa; color: #fff; border-radius: 6px; padding: 3px 7px; font-size: 12px; }
-.img-add { border: 2px dashed var(--green); border-radius: 10px; min-height: 165px; display: grid; place-items: center; color: var(--green-dark); cursor: pointer; background: var(--green-lighter); font-weight: 700; text-align: center; padding: 10px; }
+.img-add { border: 2px dashed var(--green); border-radius: 10px; min-height: 165px; display: grid; place-items: center; align-content: center; gap: 6px; color: var(--green-dark); cursor: pointer; background: var(--green-lighter); font-weight: 700; text-align: center; padding: 10px; }
 .img-add:hover { background: #e2efe7; }
+.img-add-hint { font-size: 11px; font-weight: 600; opacity: 0.75; }
+
+/* 画像のドラッグ&ドロップ領域 */
+.img-zone { border-radius: 12px; transition: background 0.15s, box-shadow 0.15s; }
+.img-zone.over { background: #e2efe7; box-shadow: 0 0 0 2px var(--green) inset; }
+.img-zone.over .img-add { background: #cfe6d8; border-color: var(--green-dark); border-style: solid; color: var(--green-darkest); }
 
 .bullets-list { display: flex; flex-direction: column; gap: 6px; }
 .bullet-row { display: flex; gap: 6px; align-items: center; }

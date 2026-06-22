@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { listProducts, createProduct, deleteProduct, duplicateProduct, uploadImage } from "../lib/api";
 import { setSetting, useSettings } from "../lib/settings";
-import { makeTemplateProduct } from "../lib/defaults";
+import { makeEmptyProduct } from "../lib/defaults";
 import { calcCost } from "../lib/calc";
 import { yen, pct } from "../lib/format";
 import type { ProductRecord } from "../lib/types";
@@ -53,7 +53,7 @@ export default function Dashboard() {
   async function newProduct() {
     setBusy(true);
     try {
-      const tpl = makeTemplateProduct();
+      const tpl = makeEmptyProduct();
       tpl.name = "新規商品 " + new Date().toLocaleDateString("ja-JP");
       const rec = await createProduct(tpl.name, tpl);
       nav(`/products/${rec.id}`);
