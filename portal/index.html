@@ -83,7 +83,6 @@
     }
     @media (min-width: 720px) {
       .grid { grid-template-columns: 1fr 1fr; }
-      .grid .wide { grid-column: 1 / -1; }
     }
 
     .tile {
@@ -117,6 +116,7 @@
     .ic svg { width: 26px; height: 26px; }
     .ic.blue  { color: #0066cc; }
     .ic.amber { color: #b4530c; }
+    .ic.teal  { color: #0d9488; }
     .ic.gray  { color: #8a8a8e; }
 
     .tile h2 {
@@ -151,15 +151,6 @@
     .meta .open svg { width: 16px; height: 16px; transition: transform 0.25s ease; }
     a.tile:hover .meta .open svg { transform: translateX(3px); }
     .meta .open.muted { color: var(--faint); }
-
-    .wide { flex-direction: row; align-items: center; gap: clamp(20px, 4vw, 32px); }
-    .wide .ic { margin-bottom: 0; flex: none; }
-    .wide .body { flex: 1; }
-    .wide .meta { display: none; }
-    .wide .badge {
-      font-size: 13px; font-weight: 500; color: var(--faint);
-      white-space: nowrap;
-    }
 
     footer {
       border-top: 1px solid var(--line);
@@ -221,18 +212,38 @@
       </div>
     </a>
 
+    <!-- freelance -->
+    <a class="tile" href="https://freelance.l0l0.app">
+      <div class="ic teal" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+          <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+          <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+        </svg>
+      </div>
+      <h2>フリーランスの電卓</h2>
+      <p class="sub">フリーランス・個人事業主のための無料計算ツール集。</p>
+      <div class="meta">
+        <span class="host">freelance.l0l0.app</span>
+        <span class="open">ひらく
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </span>
+      </div>
+    </a>
+
     <!-- coming soon -->
-    <div class="tile wide" aria-disabled="true">
+    <div class="tile" aria-disabled="true">
       <div class="ic gray" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14"/><path d="M5 12h14"/>
         </svg>
       </div>
-      <div class="body">
-        <h2>近日追加</h2>
-        <p class="sub">新しいアプリ・サイトをここに追加していきます。</p>
+      <h2>近日追加</h2>
+      <p class="sub">新しいアプリ・サイトをここに追加していきます。</p>
+      <div class="meta">
+        <span class="host"></span>
+        <span class="open muted">準備中</span>
       </div>
-      <span class="badge">準備中</span>
     </div>
   </main>
 
