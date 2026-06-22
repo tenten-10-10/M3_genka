@@ -5,7 +5,7 @@ import CostEditor from "../components/CostEditor";
 import PlanningEditor from "../components/PlanningEditor";
 import PrintDocument from "../components/PrintDocument";
 import LayoutPreview from "../components/LayoutPreview";
-import { getProduct, updateProduct } from "../lib/api";
+import { getProduct, updateProduct, createShare } from "../lib/api";
 import type { LayoutMode, Product } from "../lib/types";
 
 type Tab = "planning" | "cost" | "preview";
@@ -24,6 +24,8 @@ export default function Editor() {
   const [toast, setToast] = useState("");
   const [exporting, setExporting] = useState(false);
   const [includeCost, setIncludeCost] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [navTarget, setNavTarget] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -188,16 +190,31 @@ export default function Editor() {
   }
 
   async function onHtml() {
-    if (!product || !printRef.current) return;
+    if (!product) return;
     setExporting(true);
     try {
       const { exportHtml } = await import("../lib/html");
-      exportHtml(printRef.current, `${safeName(name || product.name)}_企画書.html`, name || product.name);
+      exportHtml({ ...product, name: name || product.name }, includeCost, `${safeName(name || product.name)}_企画書.html`, name || product.name);
       showToast("HTML を書き出しました");
     } catch (e) {
       showToast("HTML 出力に失敗: " + (e instanceof Error ? e.message : String(e)));
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function onShare() {
+    if (!product) return;
+    setSharing(true);
+    try {
+      const { renderShareableHtml } = await import("../lib/html");
+      const html = renderShareableHtml({ ...product, name: name || product.name }, includeCost, name || product.name);
+      const id = await createShare(html, name || product.name);
+      setShareUrl(`${window.location.origin}/share/${id}`);
+    } catch (e) {
+      showToast("共有リンクの作成に失敗: " + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -236,6 +253,9 @@ export default function Editor() {
         <button className="btn-secondary" onClick={onExcel} disabled={exporting}>📊 Excel</button>
         <button className="btn-secondary" onClick={onPdf} disabled={exporting}>📄 PDF</button>
         <button className="btn-secondary" onClick={onHtml} disabled={exporting}>🌐 HTML</button>
+        <button className="btn-secondary" onClick={onShare} disabled={sharing || exporting} title="企画書HTMLを公開URLにして共有">
+          {sharing ? "共有準備中…" : "🔗 共有リンク"}
+        </button>
         <button className="btn-primary" onClick={() => doSave(false)} disabled={saving || !dirty}>保存</button>
       </div>
 
@@ -256,6 +276,41 @@ export default function Editor() {
 
       {toast && <div className="toast">{toast}</div>}
       {exporting && <div className="toast">書き出し中…</div>}
+
+      {shareUrl && (
+        <div className="modal-overlay" onClick={() => setShareUrl(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>🔗 共有リンクを作成しました</h3>
+            <p>
+              このURLを開くと、ブラウザで企画書（HTML）を閲覧できます。
+              {includeCost ? "※ 原価表を含みます。" : "※ 原価表は含みません。"}
+            </p>
+            <input
+              readOnly
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              style={{ width: "100%" }}
+            />
+            <div className="actions" style={{ marginTop: 16 }}>
+              <button className="btn-ghost" onClick={() => setShareUrl(null)}>閉じる</button>
+              <button className="btn-secondary" onClick={() => window.open(shareUrl, "_blank", "noopener")}>開く</button>
+              <button
+                className="btn-primary"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    showToast("URLをコピーしました");
+                  } catch {
+                    showToast("コピーできませんでした。URLを長押し/選択してコピーしてください");
+                  }
+                }}
+              >
+                URLをコピー
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {navTarget !== null && (
         <div className="modal-overlay" onClick={() => setNavTarget(null)}>

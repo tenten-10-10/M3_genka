@@ -1,15 +1,31 @@
-// 企画書を単体の HTML ファイルとして書き出す。
-// PrintDocument はインラインスタイルのみで構成されているため、複製して
-// 画面外配置を解除すれば、そのまま自己完結した HTML になる。
-export function exportHtml(el: HTMLElement, filename: string, title: string): void {
-  const clone = el.cloneNode(true) as HTMLElement;
-  clone.style.position = "static";
-  clone.style.left = "auto";
-  clone.style.top = "auto";
-  clone.style.margin = "0 auto";
-  clone.style.boxShadow = "0 0 0 1px #e3e8e5";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { buildBlocks } from "../components/PrintDocument";
+import type { Product } from "./types";
 
-  const html = `<!doctype html>
+// 企画書を「自己完結した HTML 文字列」に変換する。
+// 動画は再生可能な <video> として埋め込む（HTML / 共有リンク用）。
+export function renderShareableHtml(product: Product, includeCost: boolean, title: string): string {
+  const body = renderToStaticMarkup(
+    createElement(
+      "div",
+      {
+        className: "print-doc",
+        style: {
+          width: 800,
+          margin: "0 auto",
+          background: "#fff",
+          color: "#243029",
+          padding: 26,
+          boxShadow: "0 0 0 1px #e3e8e5",
+          fontFamily: '"Noto Sans JP","Hiragino Sans",Meiryo,sans-serif',
+        },
+      },
+      ...buildBlocks(product, { includeCost, media: "embed" })
+    )
+  );
+
+  return `<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -17,6 +33,7 @@ export function exportHtml(el: HTMLElement, filename: string, title: string): vo
 <title>${escapeHtml(title)}</title>
 <style>
   body { margin: 0; background: #f4f7f5; padding: 20px; }
+  img, video { max-width: 100%; }
   @media print {
     body { background: #fff; padding: 0; }
     [data-pdf-block] { break-inside: avoid; page-break-inside: avoid; }
@@ -25,10 +42,14 @@ export function exportHtml(el: HTMLElement, filename: string, title: string): vo
 </style>
 </head>
 <body>
-${clone.outerHTML}
+${body}
 </body>
 </html>`;
+}
 
+// 単体の HTML ファイルとしてダウンロード保存する。
+export function exportHtml(product: Product, includeCost: boolean, filename: string, title: string): void {
+  const html = renderShareableHtml(product, includeCost, title);
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

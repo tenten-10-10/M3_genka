@@ -6,8 +6,12 @@ import Logo from "./Logo";
 
 // 企画書の各セクションを data-pdf-block 単位の配列で生成する。
 // PrintDocument（出力キャプチャ用）と LayoutPreview（プレビュー用）で共用する。
-export function buildBlocks(product: Product, opts: { includeCost?: boolean } = {}): React.ReactElement[] {
+export function buildBlocks(
+  product: Product,
+  opts: { includeCost?: boolean; media?: "embed" | "placeholder" } = {}
+): React.ReactElement[] {
   const includeCost = opts.includeCost !== false;
+  const media = opts.media ?? "placeholder";
   const p = product.planning;
   const calc = calcCost(product.cost);
   const layout = product.layout || "standard";
@@ -63,7 +67,7 @@ export function buildBlocks(product: Product, opts: { includeCost?: boolean } = 
             <div style={{ ...td, color: "#aaa", width: "100%", textAlign: "center", padding: 24 }}>（画像なし）</div>
           ) : (
             p.mainImages.map((img) =>
-              mediaEl(img, { width: "100%", maxHeight: 520, border: "1px solid #ddd", objectFit: "contain" }, fTd)
+              mediaEl(img, { width: "100%", maxHeight: 520, border: "1px solid #ddd", objectFit: "contain" }, fTd, media)
             )
           )}
         </div>
@@ -87,7 +91,7 @@ export function buildBlocks(product: Product, opts: { includeCost?: boolean } = 
               <div style={{ ...td, color: "#aaa", width: "100%", textAlign: "center", padding: 24 }}>（画像なし）</div>
             ) : (
               p.mainImages.map((img) =>
-                mediaEl(img, { width: mainW, maxHeight: mainMax, border: "1px solid #ddd", objectFit: "contain" }, fTd)
+                mediaEl(img, { width: mainW, maxHeight: mainMax, border: "1px solid #ddd", objectFit: "contain" }, fTd, media)
               )
             )}
           </div>
@@ -207,7 +211,7 @@ export function buildBlocks(product: Product, opts: { includeCost?: boolean } = 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: big ? "center" : "flex-start" }}>
           {p.detailImages.map((img) => (
             <div key={img.id} style={{ width: detailW }}>
-              {mediaEl(img, { width: "100%", maxHeight: big ? 520 : 300, border: "1px solid #ddd", objectFit: "contain" }, fTd)}
+              {mediaEl(img, { width: "100%", maxHeight: big ? 520 : 300, border: "1px solid #ddd", objectFit: "contain" }, fTd, media)}
               {img.caption && <div style={{ fontSize: fTd - 1, textAlign: "center", color: "#666" }}>{img.caption}</div>}
             </div>
           ))}
@@ -292,9 +296,27 @@ const PrintDocument = forwardRef<HTMLDivElement, { product: Product; includeCost
   )
 );
 
-// 画像は <img>、動画は出力できないため代替表示（プレースホルダ）にする。
-function mediaEl(img: ProductImage, style: React.CSSProperties, fontSize: number): React.ReactElement {
+// 画像は <img>。動画は media="embed"（HTML/プレビュー）なら再生可能な <video>、
+// media="placeholder"（PDF/印刷）なら代替表示にする。
+function mediaEl(
+  img: ProductImage,
+  style: React.CSSProperties,
+  fontSize: number,
+  media: "embed" | "placeholder"
+): React.ReactElement {
   if (img.kind === "video") {
+    if (media === "embed") {
+      return (
+        <video
+          key={img.id}
+          src={img.url}
+          controls
+          preload="metadata"
+          playsInline
+          style={{ ...style, display: "block", background: "#000" }}
+        />
+      );
+    }
     const h = typeof style.maxHeight === "number" ? Math.min(style.maxHeight, 200) : 160;
     return (
       <div
@@ -303,7 +325,7 @@ function mediaEl(img: ProductImage, style: React.CSSProperties, fontSize: number
       >
         <div>
           <div style={{ fontSize: fontSize + 4, fontWeight: 700 }}>▶ 動画{img.caption ? `：${img.caption}` : ""}</div>
-          <div style={{ fontSize: fontSize - 1, marginTop: 4 }}>（PDF・印刷には表示されません）</div>
+          <div style={{ fontSize: fontSize - 1, marginTop: 4 }}>（PDF・印刷では表示されません。HTML/共有リンクで再生できます）</div>
         </div>
       </div>
     );

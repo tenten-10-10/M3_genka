@@ -38,7 +38,7 @@ function packBreaks(heights: number[], s: number): Set<number> {
 }
 
 export default function LayoutPreview({ product, includeCost }: { product: Product; includeCost?: boolean }) {
-  const blocks = buildBlocks(product, { includeCost });
+  const blocks = buildBlocks(product, { includeCost, media: "embed" });
   const measureRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [heights, setHeights] = useState<number[]>([]);

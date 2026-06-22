@@ -78,6 +78,24 @@ export async function removeImage(path?: string): Promise<void> {
   await supabase.storage.from(STORAGE_BUCKET).remove([path]);
 }
 
+// ===== 共有（HTML をDBに保存し、公開ビューア /share/:id で閲覧） =====
+export async function createShare(html: string, name: string): Promise<string> {
+  const { data: user } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from("m3_shares")
+    .insert({ html, name, owner_id: user.user?.id ?? null })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return (data as { id: string }).id;
+}
+
+export async function getShare(id: string): Promise<{ html: string; name: string }> {
+  const { data, error } = await supabase.from("m3_shares").select("html,name").eq("id", id).single();
+  if (error) throw error;
+  return data as { html: string; name: string };
+}
+
 // ===== 認証 =====
 
 export async function signIn(email: string, password: string) {
