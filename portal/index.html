@@ -60,93 +60,78 @@
     }
     .hero h1 {
       font-size: clamp(46px, 9.5vw, 92px);
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 1.02;
+      font-weight: 700; letter-spacing: -0.04em; line-height: 1.02;
     }
     .hero p {
       margin-top: clamp(12px, 2.2vw, 20px);
       font-size: clamp(18px, 3vw, 25px);
-      font-weight: 500;
-      color: var(--sub);
-      letter-spacing: 0.005em;
+      font-weight: 500; color: var(--sub); letter-spacing: 0.005em;
     }
 
     /* ---------- grid ---------- */
     .grid {
-      max-width: 980px;
-      margin: 0 auto;
+      max-width: 980px; margin: 0 auto;
       padding: 0 22px clamp(56px, 10vw, 104px);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
+      display: grid; grid-template-columns: 1fr; gap: 20px;
     }
     @media (min-width: 720px) {
       .grid { grid-template-columns: 1fr 1fr; }
     }
 
     .tile {
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       background: var(--tile);
       border: 1px solid transparent;
       border-radius: 24px;
-      padding: clamp(28px, 3.6vw, 40px);
-      text-decoration: none;
-      color: inherit;
+      padding: clamp(12px, 1.6vw, 16px);
+      text-decoration: none; color: inherit;
       transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
-                  box-shadow 0.28s ease, background 0.28s ease;
+                  box-shadow 0.28s ease, background 0.28s ease, border-color 0.28s ease;
     }
     a.tile:hover {
       transform: translateY(-4px);
       background: #fff;
       border-color: var(--line);
-      box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 22px 48px -20px rgba(0, 0, 0, 0.25);
     }
 
-    .ic {
-      width: 56px; height: 56px;
-      display: grid; place-items: center;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.18);
-      margin-bottom: clamp(20px, 3vw, 28px);
+    .thumb {
+      width: 100%; aspect-ratio: 16 / 10;
+      border-radius: 14px; overflow: hidden;
+      background: #fff; border: 1px solid var(--line);
     }
-    .ic svg { width: 26px; height: 26px; }
-    .ic.blue  { color: #0066cc; }
-    .ic.amber { color: #b4530c; }
-    .ic.teal  { color: #0d9488; }
-    .ic.gray  { color: #8a8a8e; }
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top center;
+      display: block; transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    a.tile:hover .thumb img { transform: scale(1.045); }
+    .thumb.empty {
+      display: grid; place-items: center; color: var(--faint);
+      background: linear-gradient(135deg, #f0f0f3, #e7e7ec);
+      border-style: dashed;
+    }
+    .thumb.empty svg { width: 38px; height: 38px; }
 
+    .body { padding: clamp(16px, 2.2vw, 22px) clamp(10px, 1.4vw, 14px) clamp(6px, 1vw, 10px); }
     .tile h2 {
-      font-size: clamp(21px, 2.8vw, 26px);
-      font-weight: 600;
-      letter-spacing: -0.015em;
-      line-height: 1.25;
+      font-size: clamp(20px, 2.6vw, 25px);
+      font-weight: 600; letter-spacing: -0.015em; line-height: 1.25;
     }
     .tile .sub {
-      margin-top: 9px;
-      font-size: clamp(14px, 1.9vw, 16px);
-      line-height: 1.65;
-      color: var(--sub);
-      max-width: 40ch;
+      margin-top: 8px;
+      font-size: clamp(14px, 1.85vw, 15.5px);
+      line-height: 1.65; color: var(--sub); max-width: 42ch;
     }
-
     .meta {
-      margin-top: clamp(22px, 3vw, 30px);
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
+      margin-top: clamp(18px, 2.4vw, 24px);
+      padding-top: 15px; border-top: 1px solid var(--line);
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-    .meta .host {
-      font-size: 13px; color: var(--faint);
-      letter-spacing: 0.01em;
-    }
+    .meta .host { font-size: 13px; color: var(--faint); letter-spacing: 0.01em; }
     .meta .open {
       display: inline-flex; align-items: center; gap: 5px;
-      font-size: 15px; font-weight: 500; color: var(--link);
-      white-space: nowrap;
+      font-size: 15px; font-weight: 500; color: var(--link); white-space: nowrap;
     }
     .meta .open svg { width: 16px; height: 16px; transition: transform 0.25s ease; }
     a.tile:hover .meta .open svg { transform: translateX(3px); }
@@ -154,11 +139,8 @@
 
     footer {
       border-top: 1px solid var(--line);
-      color: var(--faint);
-      font-size: 12px;
-      text-align: center;
-      padding: 24px;
-      letter-spacing: 0.01em;
+      color: var(--faint); font-size: 12px; text-align: center;
+      padding: 24px; letter-spacing: 0.01em;
     }
   </style>
 </head>
@@ -174,75 +156,61 @@
   <main class="grid">
     <!-- kikakusho -->
     <a class="tile" href="https://kikakusho.l0l0.app">
-      <div class="ic blue" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <path d="M14 2v6h6"/>
-          <path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>
-        </svg>
-      </div>
-      <h2>商品企画書・原価表</h2>
-      <p class="sub">企画書から原価表まで、ひとつのアプリで。保存・自動計算・PDF / Excel / HTML 出力に対応。</p>
-      <div class="meta">
-        <span class="host">kikakusho.l0l0.app</span>
-        <span class="open">ひらく
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-        </span>
+      <div class="thumb"><img src="/thumbs/kikakusho.jpg" alt="商品企画書・原価表 のスクリーンショット" loading="lazy" /></div>
+      <div class="body">
+        <h2>商品企画書・原価表</h2>
+        <p class="sub">企画書から原価表まで、ひとつのアプリで。保存・自動計算・PDF / Excel / HTML 出力に対応。</p>
+        <div class="meta">
+          <span class="host">kikakusho.l0l0.app</span>
+          <span class="open">ひらく
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
+        </div>
       </div>
     </a>
 
     <!-- cost-planter -->
     <a class="tile" href="https://cost-planter.jp">
-      <div class="ic amber" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="16" height="20" x="4" y="2" rx="2"/>
-          <path d="M8 6h8"/>
-          <path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/>
-          <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14v4"/>
-          <path d="M8 18h.01"/><path d="M12 18h.01"/>
-        </svg>
-      </div>
-      <h2>cost-planter</h2>
-      <p class="sub">原価計算ツール。</p>
-      <div class="meta">
-        <span class="host">cost-planter.jp</span>
-        <span class="open">ひらく
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-        </span>
+      <div class="thumb"><img src="/thumbs/cost-planter.jpg" alt="cost-planter（利益計算シミュレーター）のスクリーンショット" loading="lazy" /></div>
+      <div class="body">
+        <h2>cost-planter</h2>
+        <p class="sub">EC・営業・企画向けの利益計算シミュレーター。案件ごとに保存できます。</p>
+        <div class="meta">
+          <span class="host">cost-planter.jp</span>
+          <span class="open">ひらく
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
+        </div>
       </div>
     </a>
 
     <!-- freelance -->
     <a class="tile" href="https://freelance.l0l0.app">
-      <div class="ic teal" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-          <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-          <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-        </svg>
-      </div>
-      <h2>フリーランスの電卓</h2>
-      <p class="sub">フリーランス・個人事業主のための無料計算ツール集。</p>
-      <div class="meta">
-        <span class="host">freelance.l0l0.app</span>
-        <span class="open">ひらく
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-        </span>
+      <div class="thumb"><img src="/thumbs/freelance.jpg" alt="フリーランスの電卓 のスクリーンショット" loading="lazy" /></div>
+      <div class="body">
+        <h2>フリーランスの電卓</h2>
+        <p class="sub">フリーランス・個人事業主のための無料計算ツール集。</p>
+        <div class="meta">
+          <span class="host">freelance.l0l0.app</span>
+          <span class="open">ひらく
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </span>
+        </div>
       </div>
     </a>
 
     <!-- coming soon -->
     <div class="tile" aria-disabled="true">
-      <div class="ic gray" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14"/><path d="M5 12h14"/>
-        </svg>
+      <div class="thumb empty" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
       </div>
-      <h2>近日追加</h2>
-      <p class="sub">新しいアプリ・サイトをここに追加していきます。</p>
-      <div class="meta">
-        <span class="host"></span>
-        <span class="open muted">準備中</span>
+      <div class="body">
+        <h2>近日追加</h2>
+        <p class="sub">新しいアプリ・サイトをここに追加していきます。</p>
+        <div class="meta">
+          <span class="host"></span>
+          <span class="open muted">準備中</span>
+        </div>
       </div>
     </div>
   </main>
