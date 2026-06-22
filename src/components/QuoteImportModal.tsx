@@ -45,6 +45,13 @@ export default function QuoteImportModal({
   const [fetchingRates, setFetchingRates] = useState(false);
   const [mode, setMode] = useState<"append" | "replace">("append");
   const [fileName, setFileName] = useState("");
+  const [dropOver, setDropOver] = useState(false);
+
+  function onDropFile(f: File | undefined) {
+    if (!f) return;
+    if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) onFile(f);
+    else setError("PDFファイルをドロップしてください");
+  }
 
   const jpyOf = (row: Row) => Math.round(row.unitOrig * (rates[row.currency] ?? 1));
   const selected = rows.filter((r) => r.include);
@@ -152,7 +159,12 @@ export default function QuoteImportModal({
               US ドル・人民元などの単価を含む見積もりPDFを読み込み、選択した為替レートで円に換算して原価明細に追加します。
             </p>
             {error && <div className="q-err">{error}</div>}
-            <label className="q-drop">
+            <label
+              className={"q-drop" + (dropOver ? " over" : "")}
+              onDragOver={(e) => { e.preventDefault(); if (!dropOver) setDropOver(true); }}
+              onDragLeave={(e) => { e.preventDefault(); setDropOver(false); }}
+              onDrop={(e) => { e.preventDefault(); setDropOver(false); onDropFile(e.dataTransfer.files?.[0]); }}
+            >
               <input
                 type="file"
                 accept="application/pdf,.pdf"
@@ -162,7 +174,11 @@ export default function QuoteImportModal({
                   if (f) onFile(f);
                 }}
               />
-              {stage === "loading" ? `解析中… ${fileName}` : "クリックして見積もりPDFを選択"}
+              {stage === "loading"
+                ? `解析中… ${fileName}`
+                : dropOver
+                  ? "ここにドロップ"
+                  : "クリック または ドラッグ＆ドロップで見積もりPDFを選択"}
             </label>
             <div className="q-foot">
               <span style={{ flex: 1 }} />

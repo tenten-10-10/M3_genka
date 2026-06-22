@@ -312,6 +312,7 @@ label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; 
   text-align: center; font-weight: 700; cursor: pointer; margin: 6px 0 4px;
 }
 .q-drop:hover { background: #e2efe7; }
+.q-drop.over { background: #cfe6d8; border-color: var(--green-dark); border-style: solid; color: var(--green-darkest); }
 .q-err { background: #fff0f0; color: var(--red); padding: 10px 12px; border-radius: 8px; font-size: 13px; margin: 10px 0; }
 .q-meta { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; flex-wrap: wrap; }
 .q-supplier { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px; }

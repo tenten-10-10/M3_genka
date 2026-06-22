@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import type { ProductImage } from "../lib/types";
 import { uploadImage, removeImage } from "../lib/api";
+import { compressImage, compressVideo, canCompressVideo } from "../lib/media";
 import { uid } from "../lib/format";
 
 export default function ImageManager({
@@ -14,6 +15,7 @@ export default function ImageManager({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [busyMsg, setBusyMsg] = useState("");
   const [err, setErr] = useState("");
   const [over, setOver] = useState(false);
   const [urlInput, setUrlInput] = useState("");
@@ -46,8 +48,16 @@ export default function ImageManager({
       }
       const added: ProductImage[] = [];
       for (const file of list) {
-        const { url, path } = await uploadImage(file);
-        added.push({ id: uid(), url, path, caption: "", kind: file.type.startsWith("video/") ? "video" : "image" });
+        let f = file;
+        if (file.type.startsWith("image/")) {
+          setBusyMsg("画像を最適化中…");
+          f = await compressImage(file);
+        } else if (file.type.startsWith("video/") && canCompressVideo() && file.size > 20 * 1024 * 1024) {
+          f = await compressVideo(file, { onProgress: (p) => setBusyMsg(`動画を圧縮中… ${Math.round(p * 100)}%`) });
+        }
+        setBusyMsg("アップロード中…");
+        const { url, path } = await uploadImage(f);
+        added.push({ id: uid(), url, path, caption: "", kind: f.type.startsWith("video/") ? "video" : "image" });
       }
       onChange([...images, ...added]);
     } catch (e) {
@@ -59,6 +69,7 @@ export default function ImageManager({
       }
     } finally {
       setBusy(false);
+      setBusyMsg("");
       if (inputRef.current) inputRef.current.value = "";
     }
   }
@@ -120,7 +131,7 @@ export default function ImageManager({
         ))}
         <div className={"img-add" + (over ? " over" : "")} onClick={() => !busy && inputRef.current?.click()}>
           {busy ? (
-            "アップロード中…"
+            busyMsg || "アップロード中…"
           ) : over ? (
             "ここにドロップ"
           ) : (
