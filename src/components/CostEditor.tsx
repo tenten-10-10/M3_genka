@@ -1,13 +1,21 @@
+import { useState } from "react";
 import type { Product } from "../lib/types";
 import { calcCost } from "../lib/calc";
 import { yen, num, pct } from "../lib/format";
 import { emptyLine, COST_STATUSES } from "../lib/defaults";
+import QuoteImportModal from "./QuoteImportModal";
 
 type Mutate = (fn: (p: Product) => void) => void;
 
 export default function CostEditor({ product, mutate }: { product: Product; mutate: Mutate }) {
   const c = product.cost;
   const calc = calcCost(c);
+  const [showImport, setShowImport] = useState(false);
+  const [toast, setToast] = useState("");
+  function flash(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2600);
+  }
 
   const setNum = (key: keyof typeof c) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value === "" ? 0 : Number(e.target.value);
@@ -102,9 +110,19 @@ export default function CostEditor({ product, mutate }: { product: Product; muta
           </tbody>
         </table>
       </div>
-      <button className="btn-secondary btn-sm" style={{ marginTop: 10 }} onClick={() => mutate((p) => { p.cost.items.push(emptyLine()); })}>
-        ＋ 明細を追加
-      </button>
+      <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+        <button className="btn-secondary btn-sm" onClick={() => mutate((p) => { p.cost.items.push(emptyLine()); })}>
+          ＋ 明細を追加
+        </button>
+        <button className="btn-secondary btn-sm" onClick={() => setShowImport(true)}>
+          📄 見積もりPDFから取込
+        </button>
+      </div>
+
+      {showImport && (
+        <QuoteImportModal mutate={mutate} onClose={() => setShowImport(false)} onDone={flash} />
+      )}
+      {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }
