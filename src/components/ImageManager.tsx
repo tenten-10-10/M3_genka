@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { ProductImage } from "../lib/types";
 import { uploadImage, removeImage } from "../lib/api";
-import { compressImage, compressVideo, canCompressVideo } from "../lib/media";
+import { compressImage } from "../lib/media";
 import { uid } from "../lib/format";
 
 export default function ImageManager({
@@ -52,9 +52,8 @@ export default function ImageManager({
         if (file.type.startsWith("image/")) {
           setBusyMsg("画像を最適化中…");
           f = await compressImage(file);
-        } else if (file.type.startsWith("video/") && canCompressVideo() && file.size > 20 * 1024 * 1024) {
-          f = await compressVideo(file, { onProgress: (p) => setBusyMsg(`動画を圧縮中… ${Math.round(p * 100)}%`) });
         }
+        // 動画は互換性優先のため圧縮せず、元ファイル（mp4等）のままアップロードする。
         setBusyMsg("アップロード中…");
         const { url, path } = await uploadImage(f);
         added.push({ id: uid(), url, path, caption: "", kind: f.type.startsWith("video/") ? "video" : "image" });
