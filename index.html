@@ -74,6 +74,9 @@ ul{list-style:none}
 .nb{display:inline-block}
 :focus{outline:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:2px}
+/* programmatic focus targets (in-page nav / skip link) move focus for AT
+   without showing a ring — they are never reachable by Tab */
+[tabindex="-1"]:focus,[tabindex="-1"]:focus-visible{outline:none}
 .skip{
   position:fixed;top:12px;left:12px;z-index:200;
   background:var(--ink);color:var(--paper);
